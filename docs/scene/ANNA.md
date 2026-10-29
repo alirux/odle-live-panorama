@@ -1,0 +1,13 @@
+# Anna
+
+Anna sits in the meadow below Nebbia, among the cows. In summer she wears a Tyrolean dirndl and picks flowers; in winter she wears a wool jacket, scarf and mittens and plays in the snow. The two poses crossfade with the seasonal change of clothes. She is visible by day while the hut is open and goes inside during snowfalls. The name Anna is kept in both interface languages.
+
+Assets: `core/assets/photo/anna-summer.webp` and `core/assets/photo/anna-winter.webp`, generated with the built-in ImageGen tool on 24 October 2026 and converted to WebP with transparency. The second image uses the first as a reference to keep the face and pose.
+
+## Summer prompt
+
+Photorealistic transparent cutout asset for an Alpine chalet panorama. One fictional young girl named Anna, about 6 years old, chestnut brown hair in two braids, fully dressed in a traditional modest Tyrolean summer dirndl: forest-green bodice, white short-sleeved blouse, muted rose skirt and cream apron, sturdy little brown shoes. She is sitting on the ground, legs tucked comfortably to one side under her skirt, leaning forward, looking down absorbed in gathering tiny alpine daisies. One hand reaches to pick a flower, the other holds a little handful of daisies. Entire seated body and both hands visible, front three-quarter view, slightly elevated camera as seen from a meadow path. Natural late morning sunlight from upper left, photographic materials and proportions. Genuinely transparent background including all gaps; no landscape, no patch of grass, no platform, no other people, no text. Flowers only in her hands and immediately at her reaching fingertips, compact silhouette. This is a small scene sprite, clear readable pose.
+
+## Winter prompt
+
+Edit the supplied transparent cutout of Anna into her winter counterpart. Preserve exactly the same fictional girl's identity, age, face, chestnut braids, seated pose, orientation, whole-body framing and proportions. She now wears traditional Tyrolean winter clothes: thick forest-green wool loden jacket with small traditional buttons, muted rose wool skirt over warm thick leggings, cream knitted scarf, wool mittens, and brown winter boots. Replace the daisies in her hand with a small snowball and the flowers under her reaching hand with a very small handful of loose snow, as she looks down absorbed in playing and shaping snow. No flowers remain. Keep compact silhouette and same lightly elevated three-quarter viewpoint, soft winter light from upper left. Genuinely transparent background and openings, no scenery or large ground patch, no extra objects, no text. Natural photorealism. Preserve transparency.

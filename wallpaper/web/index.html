@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Odle Dolomites Italy</title>
+<!-- The wallpaper page: the scene alone, frozen at ?previewTime=, which the
+     renderer in wallpaper/Sources/ photographs once per frame. The scripts
+     are the shared ones from core/assets/. -->
+<style>
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+#landscape {
+  position: fixed;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+</style>
+<script>
+// Retina frames whatever display the renderer runs on.
+Object.defineProperty(window, "devicePixelRatio", { get: () => 2 });
+// The renderer's window can end up behind other windows, where WebKit stops
+// the animation frames: timers keep the scene drawing. The renderer reads the
+// canvas once the photos are in and enough frames have been drawn since.
+window.odleWallpaperDrawn = 0;
+window.requestAnimationFrame = callback => setTimeout(() => {
+  if (window.photoScene && photoScene.ready) window.odleWallpaperDrawn++;
+  callback(performance.now());
+}, 40);
+</script>
+</head>
+<body>
+<canvas id="landscape" aria-hidden="true"></canvas>
+<script src="assets/tz-lookup.js"></script>
+<script src="assets/photo-seasons.js"></script>
+<script src="assets/photo-skyline.js"></script>
+<script src="assets/photo-landscape.js"></script>
+<script src="assets/photo-life-model.js"></script>
+<script src="assets/photo-visitors.js"></script>
+<script src="assets/photo-life.js"></script>
+<script src="assets/odle-astronomy.js"></script>
+<script src="assets/odle-scene.js"></script>
+<script src="frames.js"></script>
+<script>odleScene.startScene();</script>
+</body>
+</html>

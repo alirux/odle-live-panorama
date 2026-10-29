@@ -1,0 +1,15 @@
+body.photo-active .intro.is-collapsed { top: 92px; }
+#photo-life-tooltip { max-width: min(290px, calc(100vw - 16px)); pointer-events: none; }
+.photo-life-badge { display: inline-block; margin: 0 6px; vertical-align: -2px; line-height: 0; }
+.photo-life-badge svg { width: 16px; height: 15px; }
+.photo-life-badge-flower { margin: 0 0 0 6px; vertical-align: -8px; }
+.photo-life-badge-flower img { display: inline-block; width: 28px; height: 28px; object-fit: contain; }
+.photo-life-target { position: fixed; z-index: 3; border: 0; background: transparent; padding: 0; cursor: pointer; color: transparent; }
+.photo-life-target:focus-visible { outline: 1px solid #ffe6b1; outline-offset: 5px; border-radius: 50%; }
+.photo-life-target[hidden] { display: none; }
+#photo-rotate-hint { display: none; }
+@media (orientation: portrait) and (max-width: 700px) {
+  body.photo-active #photo-rotate-hint:not([hidden]) { display: flex; align-items: center; gap: 8px; position: fixed; z-index: 12; top: 148px; left: 14px; right: 14px; padding: 10px 12px; color: #f4f0df; background: rgba(13,24,32,.76); border: 1px solid rgba(255,255,255,.18); border-radius: 12px; font: 12px/1.5 system-ui, sans-serif; backdrop-filter: blur(8px); }
+  #photo-rotate-hint span { flex: 1; }
+  #photo-rotate-hint button { background: transparent; color: inherit; border: 0; padding: 4px 8px; font-size: 20px; cursor: pointer; }
+}

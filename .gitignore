@@ -1,0 +1,8 @@
+.DS_Store
+node_modules/
+screensaver/build/
+wallpaper/build/
+
+# Built for GitHub releases, not tracked
+screensaver/release/*.zip
+wallpaper/release/*.heic

@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="it" style="--body-bg: rgba(8,16,30,1); --text-color: rgba(238,243,244,1); --panel-bg: rgba(9,17,31,0.58); --controls-bg: rgba(9,17,31,0.58); --controls-text: rgba(238,243,244,1); --controls-border: rgba(222,233,244,0.2); --intro-panel-bg: rgba(9,17,31,0.46); --panel-border: rgba(222,233,244,0.2); --panel-shadow: rgba(0,5,17,0.34); --status-text: rgba(232,240,247,1); --status-bg: rgba(6,16,31,0.55); --status-border: rgba(205,225,245,0.2); --status-shadow: rgba(0,5,17,0.32);"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Home Page di Lirux</title>
+<link rel="canonical" href="https://www.alilab.it/">
+
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#08101e">
+<link rel="preload" as="image" href="assets/photo/odle-day.webp">
+<link rel="stylesheet" href="assets/photo-life.css?v=anna-edelweiss-20261024">
+
+<style>
+* { box-sizing: border-box; }
+
+.visually-hidden {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:root {
+  --hud-width: 324px;
+  --hud-height: 42px;
+  --toolbar-height: 42px;
+  --toolbar-midline-offset: 0px;
+  --edge-offset: 14px;
+  --body-bg: #e7eee9;
+  --text-color: #30423d;
+  --panel-bg: rgba(255,255,255,.28);
+  --controls-bg: rgba(255,255,255,.28);
+  --controls-border: rgba(255,255,255,.52);
+  --controls-text: #30423d;
+  --intro-panel-bg: rgba(255,255,255,.18);
+  --panel-border: rgba(255,255,255,.52);
+  --panel-shadow: rgba(57,74,66,.07);
+  --status-bg: rgba(248,251,244,.80);
+  --status-border: rgba(255,255,255,.72);
+  --status-shadow: rgba(27,45,39,.18);
+  --status-text: #263a34;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  background: var(--body-bg);
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  color: var(--text-color);
+}
+
+#landscape {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+body.photo-active .intro { background: rgba(13,24,32,.40); color: #f4f6f5; border-color: rgba(255,255,255,.23); }
+body.photo-active .intro p { opacity: .92; }
+
+.content {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px;
+}
+
+.intro {
+  position: relative;
+  width: min(600px, 88vw);
+
+  transform: translateY(
+    clamp(48px, 7.5vh, 82px)
+  );
+
+  padding: 31px 36px;
+
+  background: var(--intro-panel-bg);
+
+  border: 1px solid var(--panel-border);
+  border-radius: 24px;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 24px 72px var(--panel-shadow),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+h1 {
+  margin: 0 0 12px;
+
+  font-size: clamp(36px,6.5vw,72px);
+  line-height: .95;
+
+  font-weight: 550;
+}
+
+p {
+  margin: 0;
+  max-width: 480px;
+
+  font-size: 16px;
+  line-height: 1.55;
+
+  opacity: .72;
+}
+
+.intro-toggle {
+  display: grid;
+
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+
+  opacity: .6;
+  transition: opacity .16s ease, background-color .16s ease;
+}
+
+.intro-toggle:hover,
+.intro-toggle:focus-visible {
+  opacity: 1;
+  background-color: rgba(255,255,255,.17);
+  outline: none;
+}
+
+.intro-toggle svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.intro-toggle .intro-toggle-expand,
+.intro.is-collapsed .intro-toggle .intro-toggle-minimise {
+  display: none;
+}
+
+.intro.is-collapsed .intro-toggle .intro-toggle-expand {
+  display: block;
+}
+
+.intro-links {
+  margin-top: 22px;
+  padding-top: 15px;
+
+  border-top: 1px solid var(--panel-border);
+}
+
+.intro-links-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+
+  margin-left: -10px;
+}
+
+.intro-links a {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 10px;
+  border-radius: 8px;
+
+  color: inherit;
+  text-decoration: none;
+
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: .005em;
+
+  opacity: .72;
+  transition: opacity .16s ease, background-color .16s ease;
+}
+
+.intro-links a:hover,
+.intro-links a:focus-visible {
+  opacity: 1;
+  background-color: rgba(255,255,255,.17);
+  outline: none;
+}
+
+.intro-links a.intro-links-icon {
+  padding: 6px;
+}
+
+.intro-links svg {
+  display: block;
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+.intro-links-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  margin-left: 12px;
+}
+
+/* sitting next to Privacy, an underlined word read as one more link: the pill
+   and the globe say "this does something" instead */
+.intro-language {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 2px 8px 2px 6px;
+  margin: 0 1px;
+  vertical-align: -1px;
+
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  cursor: pointer;
+
+  font: inherit;
+  font-size: 10px;
+  line-height: 1.4;
+
+  opacity: .72;
+  transition: opacity .16s ease, background-color .16s ease;
+}
+
+.intro-language:hover,
+.intro-language:focus-visible {
+  opacity: 1;
+  background-color: rgba(255,255,255,.17);
+  outline: none;
+}
+
+.intro-language svg {
+  display: block;
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+}
+
+/* only the heading sits level with the toggle, so it alone needs the
+   clearance; reserving it on the panel squeezed the links onto two rows */
+.intro-body h1 {
+  padding-right: 42px;
+}
+
+body.fullscreen .scene-compass {
+  display: none;
+}
+
+.intro.is-collapsed {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 9;
+
+  width: 44px;
+  height: 44px;
+  padding: 0;
+
+  border-radius: 14px;
+  transform: none;
+}
+
+.intro.is-collapsed .intro-body {
+  display: none;
+}
+
+.intro.is-collapsed .intro-toggle {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  opacity: .82;
+}
+
+.intro-legal a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+  opacity: .85;
+}
+
+.intro-legal a:hover,
+.intro-legal a:focus-visible {
+  opacity: 1;
+  outline: none;
+}
+
+.intro-legal {
+  margin-top: 15px;
+
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: .01em;
+
+  opacity: .5;
+}
+
+.sky-status {
+  position: fixed;
+  right: 14px;
+  /* With side by side bars we share the centre line, not the bottom edge:
+     this keeps the HUD centred even when touch targets raise the toolbar. */
+  bottom: calc(var(--edge-offset) + var(--toolbar-midline-offset));
+  z-index: 2;
+
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  width: min(var(--hud-width), calc(100vw - 16px));
+  height: var(--hud-height);
+
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: .025em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  padding: 5px 8px;
+
+  color: var(--status-text);
+  background: var(--status-bg);
+  border: 1px solid var(--status-border);
+  border-radius: 9px;
+  box-shadow:
+    0 5px 18px var(--status-shadow),
+    inset 0 1px 0 rgba(255,255,255,.18);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+
+  pointer-events: none;
+  user-select: none;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+}
+
+.solar-event {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: -2px;
+}
+
+.solar-event svg {
+  width: 16px;
+  height: 14px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.moon-phase-status {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: -3px;
+}
+
+.moon-phase-status svg {
+  width: 16px;
+  height: 16px;
+  overflow: visible;
+}
+
+.moon-phase-outline {
+  fill: rgba(255,255,255,.08);
+  stroke: currentColor;
+  stroke-width: 1.1;
+}
+
+.moon-phase-lit {
+  fill: currentColor;
+}
+
+.scene-compass {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+
+  width: 124px;
+  height: 80px;
+
+  color: var(--status-text);
+  filter:
+    drop-shadow(0 1px 1px rgba(255,255,255,.24))
+    drop-shadow(0 2px 3px rgba(8,17,27,.20));
+
+  pointer-events: none;
+  user-select: none;
+}
+
+.scene-compass svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.compass-ring,
+.compass-axis,
+.compass-tick {
+  fill: none;
+  stroke: currentColor;
+  vector-effect: non-scaling-stroke;
+}
+
+.compass-ring {
+  stroke-width: 1.15;
+  opacity: .56;
+}
+
+.compass-ring-back {
+  stroke-dasharray: 3 4;
+  opacity: .32;
+}
+
+.compass-axis {
+  stroke-width: 1;
+  opacity: .30;
+}
+
+.compass-tick {
+  stroke-width: 1.35;
+  opacity: .72;
+}
+
+.compass-heading {
+  fill: rgba(244,151,103,.88);
+  stroke: currentColor;
+  stroke-width: .8;
+  vector-effect: non-scaling-stroke;
+}
+
+.compass-center {
+  fill: currentColor;
+  opacity: .76;
+}
+
+.compass-label {
+  fill: currentColor;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 680;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--body-bg);
+  stroke-width: 2px;
+  stroke-linejoin: round;
+}
+
+.compass-label-back {
+  font-size: 9px;
+  opacity: .54;
+}
+
+.compass-label-front {
+  font-size: 13px;
+}
+
+.star-tooltip {
+  position: fixed;
+  z-index: 10;
+  width: max-content;
+  max-width: min(230px, calc(100vw - 24px));
+  padding: 10px 12px 9px;
+
+  color: #edf5ff;
+  background: rgba(9,20,40,.88);
+  border: 1px solid rgba(221,235,255,.25);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(2,8,22,.22);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .16s ease, transform .16s ease;
+}
+
+.star-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.star-tooltip strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: .01em;
+}
+
+.star-tooltip-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.star-tooltip-label {
+  color: rgba(225,237,255,.60);
+}
+
+body.star-hovering {
+  cursor: help;
+}
+
+body.iss-hovering {
+  cursor: help;
+}
+
+body.planet-hovering {
+  cursor: help;
+}
+
+body.peak-hovering {
+  cursor: help;
+}
+
+body.moon-landing-hovering {
+  cursor: help;
+}
+
+body.star-nearby:not(.star-hovering) {
+  cursor: crosshair;
+}
+
+body.planet-nearby:not(.planet-hovering) {
+  cursor: crosshair;
+}
+
+.simulation-controls {
+  position: fixed;
+  left: 14px;
+  bottom: var(--edge-offset);
+  z-index: 8;
+
+  color: var(--controls-text);
+  font-size: 12px;
+}
+
+.control-toolbar,
+.control-popover {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 12px 34px var(--panel-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.control-toolbar {
+  color: var(--controls-text);
+  background: var(--controls-bg);
+  border-color: var(--controls-border);
+}
+
+#status-coordinates {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.control-toolbar {
+  display: flex;
+  gap: 3px;
+  /* six 32px buttons, five gaps and the padding; --hud-width is the HUD's own */
+  width: 215px;
+  height: var(--toolbar-height);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.control-button,
+.control-apply {
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.control-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  opacity: .72;
+}
+
+.control-button:disabled {
+  /* the rule below lifts a hovered button back to full opacity, and overriding
+     only its background left the button lighting up under the pointer anyway:
+     a disabled control should not answer the pointer at all */
+  pointer-events: none;
+  opacity: .3;
+  cursor: default;
+}
+
+/* .active carries the running speed, so it stays marked while disabled, only
+   dimmed with the rest instead of jumping back to full opacity */
+.control-button:disabled.active {
+  opacity: .3;
+}
+
+.control-button:hover,
+.control-button:focus-visible,
+.control-button.active {
+  opacity: 1;
+  background: rgba(255,255,255,.17);
+  outline: none;
+}
+
+.control-button.active {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.16);
+}
+
+.control-button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.control-button.control-rate {
+  width: 35px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: -.02em;
+}
+
+.control-button.control-language {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.control-note {
+  margin: 0 0 2px;
+  max-width: 34ch;
+
+  font-size: 10.5px;
+  line-height: 1.45;
+
+  opacity: .62;
+}
+
+.control-note a {
+  color: inherit;
+  white-space: nowrap;
+}
+
+/* both of these buttons change what they do rather than toggling a setting,
+   so the icon follows the same .active flag the label does */
+/* like the highlight, the icon reports the state the simulation is in rather
+   than the action the button performs: running shows play, stopped shows pause */
+.control-button .icon-exit-fullscreen,
+.control-button .icon-pause,
+.control-button.active .icon-enter-fullscreen,
+.control-button.paused .icon-play {
+  display: none;
+}
+
+.control-button.active .icon-exit-fullscreen,
+.control-button.paused .icon-pause {
+  display: block;
+}
+
+.control-geolocate {
+  justify-self: start;
+  margin-bottom: 2px;
+  padding: 5px 9px;
+
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--controls-border);
+  border-radius: 8px;
+  cursor: pointer;
+
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+
+  opacity: .72;
+  transition: opacity .16s ease, background-color .16s ease;
+}
+
+.control-geolocate:hover,
+.control-geolocate:focus-visible {
+  opacity: 1;
+  background-color: rgba(255,255,255,.17);
+  outline: none;
+}
+
+.control-popover {
+  position: absolute;
+  left: 0;
+  bottom: 46px;
+  display: none;
+  min-width: 270px;
+  padding: 12px;
+  border-radius: 13px;
+}
+
+.control-popover.open {
+  display: block;
+}
+
+.control-form {
+  display: flex;
+  align-items: end;
+  gap: 7px;
+}
+
+.control-field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.control-field label {
+  font-size: 10px;
+  line-height: 1;
+  opacity: .66;
+}
+
+.control-field input {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  padding: 5px 7px;
+
+  color: inherit;
+  background: rgba(255,255,255,.13);
+  border: 1px solid rgba(255,255,255,.20);
+  border-radius: 7px;
+  outline: none;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.control-field input:focus {
+  border-color: currentColor;
+}
+
+.control-apply {
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 7px;
+  color: #f5f8f7;
+  background: rgba(42,73,66,.76);
+  font-size: 15px;
+}
+
+.control-cancel {
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 11px;
+
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--controls-border);
+  border-radius: 7px;
+  cursor: pointer;
+
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+
+  opacity: .7;
+  transition: opacity .16s ease, background-color .16s ease;
+}
+
+.control-cancel:hover,
+.control-cancel:focus-visible {
+  opacity: 1;
+  background-color: rgba(255,255,255,.17);
+  outline: none;
+}
+
+.coordinate-form {
+  min-width: 516px;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.coordinate-picker {
+  display: grid;
+  grid-template-columns: 212px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.coordinate-globe-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 204px;
+}
+
+.coordinate-globe {
+  width: 200px;
+  height: 200px;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+
+.coordinate-globe.dragging {
+  cursor: grabbing;
+}
+
+.coordinate-globe-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  translate: -50% 0;
+  width: max-content;
+  font-size: 9px;
+  opacity: .58;
+  pointer-events: none;
+}
+
+.known-location-field {
+  display: grid;
+  gap: 6px;
+}
+
+.known-location-field label {
+  font-size: 10px;
+  opacity: .66;
+}
+
+.known-location-field select {
+  width: 100%;
+  height: 34px;
+  padding: 5px 8px;
+  color: inherit;
+  background: rgba(255,255,255,.13);
+  border: 1px solid rgba(255,255,255,.20);
+  border-radius: 7px;
+  outline: none;
+  font: inherit;
+}
+
+.known-location-field select option {
+  color: #243832;
+  background: #f7faf6;
+}
+
+.coordinate-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 7px;
+}
+
+.control-field-datetime {
+  /* the content is a fixed-length timestamp, so the field takes what it needs
+     and leaves the slack to the coordinates instead of stretching */
+  flex: 0 1 202px;
+}
+
+@media (max-width: 680px) {
+  .content {
+    padding: 14px;
+    /* the HUD and the controls stack at this width: keep the panel clear */
+    padding-bottom: 116px;
+  }
+
+  .intro {
+    width: min(600px, 92vw);
+    padding: 24px 22px;
+
+    transform: translateY(clamp(10px, 2.5vh, 30px));
+  }
+
+  p {
+    font-size: 15px;
+  }
+
+  /* tighter link spacing keeps the five links on a single row at 320px */
+  .intro-links a {
+    padding: 6px 8px;
+  }
+
+  .intro-links-icons {
+    margin-left: 6px;
+  }
+
+  .simulation-controls {
+    left: 8px;
+    bottom: 8px;
+  }
+
+  .control-popover {
+    width: min(360px, calc(100vw - 16px));
+    min-width: 0;
+  }
+
+  /* the form must fit inside the popover's padding, not repeat its width */
+  .coordinate-form {
+    width: auto;
+    min-width: 0;
+  }
+
+  .coordinate-picker {
+    grid-template-columns: 152px 1fr;
+  }
+
+  .coordinate-globe {
+    width: 146px;
+    height: 146px;
+  }
+
+  .coordinate-globe-wrap {
+    min-height: 150px;
+  }
+
+  .sky-status {
+    right: 8px;
+    bottom: 56px;
+  }
+
+  .scene-compass {
+    top: 7px;
+    right: 7px;
+    width: 110px;
+    height: 72px;
+  }
+}
+
+@media (max-height: 520px) {
+  .content {
+    padding: 14px;
+    padding-bottom: 88px;
+  }
+
+  .intro {
+    padding: 17px 24px;
+    transform: none;
+  }
+
+  h1 {
+    margin-bottom: 8px;
+    font-size: clamp(28px, 5.2vw, 40px);
+  }
+
+  p {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .intro-links {
+    margin-top: 12px;
+    padding-top: 10px;
+  }
+
+  .intro-legal {
+    margin-top: 8px;
+    font-size: 10px;
+  }
+
+  /* merging the two panels made this one taller than a landscape phone, so it
+     scrolls instead of running off the top of the screen, and it keeps the
+     narrow width the width breakpoint gives it below 680px */
+  .control-popover {
+    width: min(360px, calc(100vw - 16px));
+    min-width: 0;
+
+    max-height: calc(100vh - 76px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .coordinate-form {
+    width: auto;
+    min-width: 0;
+  }
+
+  .coordinate-globe {
+    width: 116px;
+    height: 116px;
+  }
+
+  .coordinate-globe-wrap {
+    min-height: 120px;
+  }
+
+  .coordinate-picker {
+    grid-template-columns: 122px 1fr;
+  }
+
+  .scene-compass {
+    top: 6px;
+    right: 6px;
+    width: 96px;
+    height: 62px;
+  }
+}
+
+/* The greeting panel fills most of a phone screen, so it can be folded away
+   into the one free corner. Collapsed, the whole pill is the button that
+   brings it back. */
+/* Phone-sized screens in either orientation: 44px touch targets, which six
+   buttons reach at every phone width. The popover is capped at 360px here, too
+   narrow for three fields and two buttons on one line, so the date takes a row
+   of its own and the labels stop colliding. */
+@media (max-width: 680px), (max-height: 520px) {
+  :root {
+    --toolbar-height: 52px;
+    --toolbar-midline-offset: 5px;
+  }
+
+  .control-field-datetime {
+    flex: 1 1 100%;
+  }
+
+  .coordinate-input-row .control-field {
+    min-width: 84px;
+  }
+
+  .control-toolbar {
+    justify-content: space-between;
+    /* six 44px targets, five gaps and the padding: they now fit even at 320px */
+    width: min(calc(100vw - 16px), 282px);
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .control-button {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+
+  .control-button.control-rate {
+    width: auto;
+    font-size: 12px;
+  }
+
+  .control-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .control-button.control-language {
+    font-size: 19px;
+  }
+
+  .control-popover {
+    bottom: 60px;
+  }
+}
+
+/* Below roughly 640px the two bars cannot sit side by side at all, so they
+   stack on the centre line the same way they do in portrait. */
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 640px) {
+  .content {
+    padding-bottom: 112px;
+  }
+
+  /* the toolbar is centred here, so the popover centres on it rather than
+     hanging off its left edge, where it ran past the screen */
+  .control-popover {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* at this size the panel reached across into the compass, putting the toggle
+     underneath it: give the compass its corner back */
+  .intro {
+    width: min(600px, calc(100vw - 220px));
+  }
+
+  .simulation-controls {
+    left: 50%;
+    right: auto;
+    bottom: 8px;
+
+    transform: translateX(-50%);
+  }
+
+  .sky-status {
+    left: 50%;
+    right: auto;
+    bottom: 66px;
+
+    transform: translateX(-50%);
+  }
+}
+
+/* Held upright there is no room side by side, so the HUD and the toolbar stack
+   on the centre line instead of hugging opposite corners. */
+@media (orientation: portrait) and (max-width: 680px) {
+  .content {
+    padding-bottom: 128px;
+  }
+
+  /* the toolbar is centred here, so the popover centres on it rather than
+     hanging off its left edge, where it ran past the screen */
+  .control-popover {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .simulation-controls {
+    left: 50%;
+    right: auto;
+    bottom: 10px;
+
+    transform: translateX(-50%);
+  }
+
+  .sky-status {
+    left: 50%;
+    right: auto;
+    bottom: 70px;
+
+    transform: translateX(-50%);
+  }
+}
+
+/* The panels over the drawing (compass, intro, controls, status) fade out
+   after a few seconds of pointer inactivity and come back as soon as the user
+   moves the mouse or touches the screen. This holds in full screen and in a window. */
+/* Quick return: this is the transition applied when going back to the base state. */
+#scene-compass,
+#intro-panel,
+#simulation-controls,
+#sky-status {
+  transition: opacity .28s ease;
+}
+
+/* Slow fade: the transition of the "hidden" state wins when the class is
+   added, so it only applies on the way out. */
+#scene-compass.ui-faded,
+#intro-panel.ui-faded,
+#simulation-controls.ui-faded,
+#sky-status.ui-faded {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 2.4s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+      #scene-compass,
+  #intro-panel,
+  #simulation-controls,
+  #sky-status,
+  #scene-compass.ui-faded,
+  #intro-panel.ui-faded,
+  #simulation-controls.ui-faded,
+  #sky-status.ui-faded {
+    transition: opacity .2s ease;
+  }
+}
+
+.intro-links-row + .intro-links-row {
+  margin-top: 4px;
+}
+.intro-links-label {
+  margin-left: 10px;
+  margin-right: 4px;
+
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: .01em;
+
+  opacity: .55;
+}
+.intro-links-row-icons {
+  margin-left: -6px;
+}
+.intro-links-row-icons .intro-links-label {
+  margin-left: 6px;
+}
+.intro-version {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+.cc-badges {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 5px;
+  vertical-align: -2px;
+}
+.cc-badges svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+  opacity: .82;
+}
+.intro-language, .intro-help { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 6px; margin: 0 1px; vertical-align: -1px; color: inherit; text-decoration: none; background: transparent; border: 1px solid currentColor; border-radius: 999px; cursor: pointer; font: inherit; font-size: 10px; line-height: 1.4; opacity: .82; }
+.intro-legal .intro-help { border: 1px solid currentColor; padding-bottom: 2px; }
+.intro-help svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+.intro-help:hover, .intro-help:focus-visible { opacity: 1; background-color: rgba(255,255,255,.17); }
+.intro-legal { opacity: .68; }
+@media (max-width: 680px) { .intro-links-label { font-size: 12px; } }
+
+</style>
+</head>
+
+<body class="star-nearby photo-active">
+
+<canvas id="landscape" width="3024" height="1730" style="width: 1512px; height: 865px;" role="img" aria-label="Paesaggio interattivo: gli abeti oscillano al vento e reagiscono al movimento del puntatore" title="Gli abeti oscillano al vento e reagiscono al movimento del puntatore"></canvas>
+
+
+<div id="scene-compass" class="scene-compass" role="img" aria-label="Bussola prospettica: la scena guarda verso sud">
+  <svg viewBox="0 0 140 90" aria-hidden="true">
+    <path class="compass-ring compass-ring-back" d="M12 48 A58 22 0 0 1 128 48"></path>
+    <path class="compass-ring" d="M12 48 A58 22 0 0 0 128 48"></path>
+    <path class="compass-axis" d="M17 48H123 M70 27V70"></path>
+    <path class="compass-tick" d="M12 44V52 M128 44V52 M67 27H73 M66 70H74"></path>
+    <path class="compass-heading" d="M70 29 L64 45 L70 41 L76 45 Z"></path>
+    <circle class="compass-center" cx="70" cy="48" r="2.4"></circle>
+    <text class="compass-label compass-label-front" x="70" y="23">S</text>
+    <text class="compass-label" x="8" y="52">E</text>
+    <text id="compass-west" class="compass-label" x="132" y="52">O</text>
+    <text class="compass-label compass-label-back" x="70" y="83">N</text>
+  </svg>
+</div>
+
+<div id="iss-status" class="visually-hidden" aria-live="off" data-visible="false" data-x="0.1431" data-y="0.4235">ISS sotto l'orizzonte</div>
+<div id="planet-status" class="visually-hidden" aria-live="off" data-visible-count="2" data-visible="Saturno,Nettuno">Pianeti visibili: Saturno, Nettuno</div>
+
+<div class="content">
+  <div class="intro" id="intro-panel">
+    <button id="intro-toggle" class="intro-toggle" type="button" aria-expanded="true" aria-controls="intro-body" title="Riduci il pannello" aria-label="Riduci il pannello">
+      <svg class="intro-toggle-minimise" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14"></path></svg>
+      <svg class="intro-toggle-expand" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10V4h6M20 14v6h-6M4 4l6 6M20 20l-6-6"></path></svg>
+    </button>
+
+    <div class="intro-body" id="intro-body">
+      <h1>Benvenuto</h1>
+
+      <p>Uno spazio <em>interattivo</em> tra montagne, stelle e... codice</p>
+
+      <nav class="intro-links" aria-label="Collegamenti">
+        <div class="intro-links-row">
+          <span class="intro-links-label">Guarda i miei progetti</span>
+          <a href="https://viper.codingful.com/" target="_blank" rel="noopener noreferrer">Viper</a>
+          <a href="https://tandem.codingful.com/" target="_blank" rel="noopener noreferrer">Tandem</a>
+          <a href="https://github.com/alirux/carve" target="_blank" rel="noopener noreferrer">Carve</a>
+          <a href="https://alirux.github.io/lx-128-surface-retroplot/" target="_blank" rel="noopener noreferrer">LX-128</a>
+        </div>
+
+        <div class="intro-links-row intro-links-row-icons">
+          <span class="intro-links-label">Chi sono</span>
+            <a class="intro-links-icon" href="https://github.com/alirux" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg>
+            </a>
+            <a class="intro-links-icon" href="https://www.linkedin.com/in/alberto-lirussi/" target="_blank" rel="noopener noreferrer" title="LinkedIn" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"></path></svg>
+            </a>
+            <a class="intro-links-icon" href="https://bsky.app/profile/alirux.bsky.social" target="_blank" rel="noopener noreferrer" title="Bluesky" aria-label="Bluesky">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.365.136-.015.275-.028.415-.04-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078a8.741 8.741 0 0 1-.415-.056c.14.012.279.025.415.04 2.67.295 5.568-.629 6.383-3.365.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.206-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"></path></svg>
+            </a>
+        </div>
+      </nav>
+
+      <p class="intro-legal"><span class="intro-version" id="intro-version" title="Versione artistica">arte 2026.10.10</span> · © 2026 Alberto Lirussi · <button type="button" id="intro-language" class="intro-language"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"></path></svg><span id="intro-language-label">English</span></button> · <a id="intro-help" class="intro-help" href="/help.html"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9.3a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2.1-2.5 3.6"></path><path d="M12 16.3v.7"></path></svg><span id="intro-help-label">Aiuto</span></a> · <a href="/privacy.html" id="intro-privacy">Privacy</a> · <a href="/licence.html" id="intro-licence">Licenza</a><span class="cc-badges" aria-hidden="true" title="Paesaggio derivato: CC BY-SA 3.0"><svg viewBox="5.5 -3.5 64 64"><path d="M37.441-3.5c8.951,0,16.572,3.125,22.857,9.372c3.008,3.009,5.295,6.448,6.857,10.314c1.561,3.867,2.344,7.971,2.344,12.314c0,4.381-0.773,8.486-2.314,12.313c-1.543,3.828-3.82,7.21-6.828,10.143c-3.123,3.085-6.666,5.448-10.629,7.086c-3.961,1.638-8.057,2.457-12.285,2.457s-8.276-0.808-12.143-2.429c-3.866-1.618-7.333-3.961-10.4-7.027c-3.067-3.066-5.4-6.524-7-10.372S5.5,32.767,5.5,28.5c0-4.229,0.809-8.295,2.428-12.2c1.619-3.905,3.972-7.4,7.057-10.486C21.08-0.394,28.565-3.5,37.441-3.5zM37.557,2.272c-7.314,0-13.467,2.553-18.458,7.657c-2.515,2.553-4.448,5.419-5.8,8.6c-1.354,3.181-2.029,6.505-2.029,9.972c0,3.429,0.675,6.734,2.029,9.913c1.353,3.183,3.285,6.021,5.8,8.516c2.514,2.496,5.351,4.399,8.515,5.715c3.161,1.314,6.476,1.971,9.943,1.971c3.428,0,6.75-0.665,9.973-1.999c3.219-1.335,6.121-3.257,8.713-5.771c4.99-4.876,7.484-10.99,7.484-18.344c0-3.543-0.648-6.895-1.943-10.057c-1.293-3.162-3.18-5.98-5.654-8.458C50.984,4.844,44.795,2.272,37.557,2.272zM37.156,23.187l-4.287,2.229c-0.458-0.951-1.019-1.619-1.685-2c-0.667-0.38-1.286-0.571-1.858-0.571c-2.856,0-4.286,1.885-4.286,5.657c0,1.714,0.362,3.084,1.085,4.113c0.724,1.029,1.791,1.544,3.201,1.544c1.867,0,3.181-0.915,3.944-2.743l3.942,2c-0.838,1.563-2,2.791-3.486,3.686c-1.484,0.896-3.123,1.343-4.914,1.343c-2.857,0-5.163-0.875-6.915-2.629c-1.752-1.752-2.628-4.19-2.628-7.313c0-3.048,0.886-5.466,2.657-7.257c1.771-1.79,4.009-2.686,6.715-2.686C32.604,18.558,35.441,20.101,37.156,23.187zM55.613,23.187l-4.229,2.229c-0.457-0.951-1.02-1.619-1.686-2c-0.668-0.38-1.307-0.571-1.914-0.571c-2.857,0-4.287,1.885-4.287,5.657c0,1.714,0.363,3.084,1.086,4.113c0.723,1.029,1.789,1.544,3.201,1.544c1.865,0,3.18-0.915,3.941-2.743l4,2c-0.875,1.563-2.057,2.791-3.541,3.686c-1.486,0.896-3.105,1.343-4.857,1.343c-2.896,0-5.209-0.875-6.941-2.629c-1.736-1.752-2.602-4.19-2.602-7.313c0-3.048,0.885-5.466,2.658-7.257c1.77-1.79,4.008-2.686,6.713-2.686C51.117,18.558,53.938,20.101,55.613,23.187z"/></svg><svg viewBox="5.5 -3.5 64 64"><path d="M37.443-3.5c8.988,0,16.57,3.085,22.742,9.257C66.393,11.967,69.5,19.548,69.5,28.5c0,8.991-3.049,16.476-9.145,22.456C53.879,57.319,46.242,60.5,37.443,60.5c-8.649,0-16.153-3.144-22.514-9.43C8.644,44.784,5.5,37.262,5.5,28.5c0-8.761,3.144-16.342,9.429-22.742C21.101-0.415,28.604-3.5,37.443-3.5zM37.557,2.272c-7.276,0-13.428,2.553-18.457,7.657c-5.22,5.334-7.829,11.525-7.829,18.572c0,7.086,2.59,13.22,7.77,18.398c5.181,5.182,11.352,7.771,18.514,7.771c7.123,0,13.334-2.607,18.629-7.828c5.029-4.838,7.543-10.952,7.543-18.343c0-7.276-2.553-13.465-7.656-18.571C50.967,4.824,44.795,2.272,37.557,2.272zM46.129,20.557v13.085h-3.656v15.542h-9.944V33.643h-3.656V20.557c0-0.572,0.2-1.057,0.599-1.457c0.401-0.399,0.887-0.6,1.457-0.6h13.144c0.533,0,1.01,0.2,1.428,0.6C45.918,19.5,46.129,19.986,46.129,20.557zM33.042,12.329c0-3.008,1.485-4.514,4.458-4.514s4.457,1.504,4.457,4.514c0,2.971-1.486,4.457-4.457,4.457S33.042,15.3,33.042,12.329z"/></svg><svg viewBox="5.5 -3.5 64 64"><path d="M37.443-3.5c8.951,0,16.531,3.105,22.742,9.315C66.393,11.987,69.5,19.548,69.5,28.5c0,8.954-3.049,16.457-9.145,22.514C53.918,57.338,46.279,60.5,37.443,60.5c-8.649,0-16.153-3.143-22.514-9.429C8.644,44.786,5.5,37.264,5.5,28.501c0-8.723,3.144-16.285,9.429-22.685C21.138-0.395,28.643-3.5,37.443-3.5zM37.557,2.272c-7.276,0-13.428,2.572-18.457,7.715c-5.22,5.296-7.829,11.467-7.829,18.513c0,7.125,2.59,13.257,7.77,18.4c5.181,5.182,11.352,7.771,18.514,7.771c7.123,0,13.334-2.609,18.629-7.828c5.029-4.876,7.543-10.99,7.543-18.343c0-7.313-2.553-13.485-7.656-18.513C51.004,4.842,44.832,2.272,37.557,2.272zM23.271,23.985c0.609-3.924,2.189-6.962,4.742-9.114c2.552-2.152,5.656-3.228,9.314-3.228c5.027,0,9.029,1.62,12,4.856c2.971,3.238,4.457,7.391,4.457,12.457c0,4.915-1.543,9-4.627,12.256c-3.088,3.256-7.086,4.886-12.002,4.886c-3.619,0-6.743-1.085-9.371-3.257c-2.629-2.172-4.209-5.257-4.743-9.257H31.1c0.19,3.886,2.533,5.829,7.029,5.829c2.246,0,4.057-0.972,5.428-2.914c1.373-1.942,2.059-4.534,2.059-7.771c0-3.391-0.629-5.971-1.885-7.743c-1.258-1.771-3.066-2.657-5.43-2.657c-4.268,0-6.667,1.885-7.2,5.656h2.343l-6.342,6.343l-6.343-6.343L23.271,23.985L23.271,23.985z"/></svg></span></p>
+    </div>
+  </div>
+</div>
+
+<div id="simulation-controls" class="simulation-controls" aria-label="Controlli della simulazione">
+  <div id="scene-panel" class="control-popover">
+    <form id="scene-form" class="control-form coordinate-form">
+      <div class="coordinate-picker">
+        <div class="coordinate-globe-wrap">
+          <canvas id="coordinate-globe" class="coordinate-globe" width="540" height="540" aria-label="Mappamondo interattivo: trascina per ruotare e seleziona un punto"></canvas>
+          <span class="coordinate-globe-hint">trascina · seleziona</span>
+        </div>
+        <div class="known-location-field">
+          <button id="control-geolocate" class="control-geolocate" type="button" hidden>Usa la mia posizione</button>
+          <p class="control-note"><span id="geolocate-note">Serve solo a calcolare il cielo dal tuo punto di vista. Resta nel browser e non viene condivisa con nessuno.</span> <a id="geolocate-privacy" href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a></p>
+          <label for="known-location">Località note</label>
+          <select id="known-location">
+            <option value="" selected="selected">Seleziona una località…</option>
+            <option value="46.6419,11.7187">Val di Funes</option>
+            <option value="45.4642,9.1900">Milano</option>
+            <option value="52.3676,4.9041">Amsterdam</option>
+            <option value="37.9838,23.7275">Atene</option>
+            <option value="44.7866,20.4489">Belgrado</option>
+            <option value="52.5200,13.4050">Berlino</option>
+            <option value="46.9480,7.4474">Berna</option>
+            <option value="50.8476,4.3572">Bruxelles</option>
+            <option value="44.4268,26.1025">Bucarest</option>
+            <option value="47.4979,19.0402">Budapest</option>
+            <option value="-33.9249,18.4241">Città del Capo</option>
+            <option value="55.6761,12.5683">Copenaghen</option>
+            <option value="-23.0234,-67.7538">Deserto di Atacama</option>
+            <option value="53.3498,-6.2603">Dublino</option>
+            <option value="60.1699,24.9384">Helsinki</option>
+            <option value="33.6844,73.0479">Islamabad</option>
+            <option value="50.4501,30.5234">Kiev</option>
+            <option value="38.7223,-9.1393">Lisbona</option>
+            <option value="51.5074,-0.1278">Londra</option>
+            <option value="34.0522,-118.2437">Los Angeles</option>
+            <option value="40.4168,-3.7038">Madrid</option>
+            <option value="19.8207,-155.4681">Mauna Kea</option>
+            <option value="40.7128,-74.0060">New York</option>
+            <option value="28.6139,77.2090">Nuova Delhi</option>
+            <option value="59.9139,10.7522">Oslo</option>
+            <option value="48.8566,2.3522">Parigi</option>
+            <option value="39.9042,116.4074">Pechino</option>
+            <option value="50.0755,14.4378">Praga</option>
+            <option value="-0.1807,-78.4678">Quito</option>
+            <option value="64.1466,-21.9426">Reykjavík</option>
+            <option value="41.9028,12.4964">Roma</option>
+            <option value="1.3521,103.8198">Singapore</option>
+            <option value="59.3293,18.0686">Stoccolma</option>
+            <option value="-33.8688,151.2093">Sydney</option>
+            <option value="35.6762,139.6503">Tokyo</option>
+            <option value="43.6532,-79.3832">Toronto</option>
+            <option value="69.6492,18.9553">Tromsø</option>
+            <option value="-54.8019,-68.3030">Ushuaia</option>
+            <option value="52.2297,21.0122">Varsavia</option>
+            <option value="48.2082,16.3738">Vienna</option>
+            <option value="45.8150,15.9819">Zagabria</option>
+          </select>
+        </div>
+      </div>
+      <div class="coordinate-input-row">
+        <div class="control-field control-field-datetime">
+          <label for="control-datetime">Data e ora</label>
+          <input id="control-datetime" type="datetime-local" step="60">
+        </div>
+        <div class="control-field">
+          <label for="control-latitude">Latitudine</label>
+          <input id="control-latitude" type="number" min="-90" max="90" step="0.0001">
+        </div>
+        <div class="control-field">
+          <label for="control-longitude">Longitudine</label>
+          <input id="control-longitude" type="number" min="-180" max="180" step="0.0001">
+        </div>
+        <button id="control-cancel" class="control-cancel" type="button" title="Annulla e chiudi" aria-label="Annulla e chiudi">✕</button>
+        <button class="control-apply" type="submit" title="Applica data, ora e coordinate" aria-label="Applica data, ora e coordinate">✓</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="control-toolbar">
+    <button id="control-rewind" class="control-button" type="button" title="Indietro veloce" aria-label="Indietro veloce" aria-pressed="false">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M9 5l-5 5 5 5M16 5l-5 5 5 5"></path></svg>
+    </button>
+    <button id="control-pause" class="control-button" type="button" title="Pausa" aria-label="Pausa">
+      <svg class="icon-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10"></path></svg>
+      <svg class="icon-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M6.5 4.2v11.6L16 10Z" fill="currentColor" stroke-linejoin="round"></path></svg>
+    </button>
+    <button id="control-forward" class="control-button" type="button" title="Avanti veloce" aria-label="Avanti veloce" aria-pressed="false">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5l5 5-5 5M11 5l5 5-5 5"></path></svg>
+    </button>
+    <button id="control-now" class="control-button" type="button" title="Torna al tempo attuale e ripristina lo scorrimento del tempo reale" aria-label="Torna al tempo attuale e ripristina lo scorrimento del tempo reale">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5"></circle><path d="M10 6.5V10l2.6 1.7M4.7 3.8H2v2.7"></path></svg>
+    </button>
+    <button id="control-scene" class="control-button" type="button" title="Quando e dove" aria-label="Quando e dove" aria-expanded="false">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h6M13 6h4M3 14h4M11 14h6"></path><circle cx="11" cy="6" r="2"></circle><circle cx="9" cy="14" r="2"></circle></svg>
+    </button>
+    <button id="control-fullscreen" class="control-button" type="button" title="Schermo intero" aria-label="Schermo intero" hidden>
+      <svg class="icon-enter-fullscreen" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 7.5v-4h4M16.5 7.5v-4h-4M3.5 12.5v4h4M16.5 12.5v4h-4"></path></svg>
+      <svg class="icon-exit-fullscreen" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 3.5v4h-4M12.5 3.5v4h4M7.5 16.5v-4h-4M12.5 16.5v-4h4"></path></svg>
+    </button>
+  </div>
+</div>
+
+<div id="star-tooltip" class="star-tooltip" role="tooltip" aria-hidden="true">
+  <strong id="star-tooltip-name"></strong>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Tipo</span>
+    <span id="star-tooltip-type"></span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Distanza</span>
+    <span id="star-tooltip-distance"></span>
+  </div>
+</div>
+
+<div id="iss-tooltip" class="star-tooltip" role="tooltip" aria-hidden="true">
+  <strong>Stazione Spaziale Internazionale</strong>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Distanza</span>
+    <span id="iss-tooltip-distance"></span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Quota</span>
+    <span>circa 418 km</span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Periodo</span>
+    <span>92,97 minuti</span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Inclinazione</span>
+    <span>51,63°</span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Velocità</span>
+    <span>circa 27.600 km/h</span>
+  </div>
+</div>
+
+<div id="planet-tooltip" class="star-tooltip" role="tooltip" aria-hidden="true">
+  <strong id="planet-tooltip-name"></strong>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Tipo</span>
+    <span id="planet-tooltip-type"></span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Dalla Terra</span>
+    <span id="planet-tooltip-distance"></span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Dal Sole</span>
+    <span id="planet-tooltip-sun-distance"></span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Diametro</span>
+    <span id="planet-tooltip-diameter"></span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Anno</span>
+    <span id="planet-tooltip-year"></span>
+  </div>
+</div>
+
+<div id="moon-landing-tooltip" class="star-tooltip" role="tooltip" aria-hidden="true">
+  <strong>Tranquility Base</strong>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Missione</span>
+    <span>Apollo 11</span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Luogo</span>
+    <span>Mare della Tranquillità</span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Allunaggio</span>
+    <span>20 luglio 1969</span>
+  </div>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Coordinate</span>
+    <span>0,674° N · 23,473° E</span>
+  </div>
+</div>
+
+<div id="peak-tooltip" class="star-tooltip" role="tooltip" aria-hidden="true">
+  <strong id="peak-tooltip-name">Sass Rigais</strong>
+  <div class="star-tooltip-row">
+    <span class="star-tooltip-label">Altezza</span>
+    <span id="peak-tooltip-elevation">3.025 m</span>
+  </div>
+</div>
+
+<div id="sky-status" class="sky-status" aria-live="off" aria-label="01/09/26, 21:52, fuso orario della località CEST (Europe/Rome), alba 06:45, tramonto 20:02, Gibbosa calante, coordinate 45.447° N, 8.927° E">
+  <span class="status-row">
+    <span id="status-date">01/09/26</span>
+    <span aria-hidden="true">·</span>
+    <span id="status-time">21:52</span>
+    <span aria-hidden="true">·</span>
+    <span id="status-timezone" title="Fuso orario della località: Europe/Rome">CEST</span>
+    <span aria-hidden="true">·</span>
+    <span class="solar-event" title="Alba">
+      <svg viewBox="0 0 20 16" aria-hidden="true">
+        <path d="M2 13h16M5 13a5 5 0 0 1 10 0M10 3v3M5.8 6.2l1.5 1.5M14.2 6.2l-1.5 1.5M18 9V3M16 5l2-2 2 2"></path>
+      </svg>
+      <span id="status-sunrise">06:45</span>
+    </span>
+    <span aria-hidden="true">·</span>
+    <span class="solar-event" title="Tramonto">
+      <svg viewBox="0 0 20 16" aria-hidden="true">
+        <path d="M2 13h16M5 13a5 5 0 0 1 10 0M10 3v3M5.8 6.2l1.5 1.5M14.2 6.2l-1.5 1.5M18 3v6M16 7l2 2 2-2"></path>
+      </svg>
+      <span id="status-sunset">20:02</span>
+    </span>
+  </span>
+
+  <span class="status-row">
+    <span id="status-moon-phase-wrap" class="moon-phase-status" aria-label="Gibbosa calante">
+      <svg viewBox="0 0 20 20" aria-hidden="true">
+        <circle class="moon-phase-outline" cx="10" cy="10" r="7.5"></circle>
+        <path id="status-moon-phase" class="moon-phase-lit" d="M10.00 2.50 L7.22 3.04 L6.14 3.57 L5.36 4.11 L4.75 4.64 L4.26 5.18 L3.85 5.71 L3.50 6.25 L3.22 6.79 L2.99 7.32 L2.81 7.86 L2.67 8.39 L2.58 8.93 L2.52 9.46 L2.50 10.00 L2.52 10.54 L2.58 11.07 L2.67 11.61 L2.81 12.14 L2.99 12.68 L3.22 13.21 L3.50 13.75 L3.85 14.29 L4.26 14.82 L4.75 15.36 L5.36 15.89 L6.14 16.43 L7.22 16.96 L10.00 17.50 L10.00 17.50 L11.50 16.96 L12.08 16.43 L12.50 15.89 L12.83 15.36 L13.09 14.82 L13.32 14.29 L13.50 13.75 L13.65 13.21 L13.77 12.68 L13.87 12.14 L13.95 11.61 L14.00 11.07 L14.03 10.54 L14.04 10.00 L14.03 9.46 L14.00 8.93 L13.95 8.39 L13.87 7.86 L13.77 7.32 L13.65 6.79 L13.50 6.25 L13.32 5.71 L13.09 5.18 L12.83 4.64 L12.50 4.11 L12.08 3.57 L11.50 3.04 L10.00 2.50 Z"></path>
+      </svg>
+    </span>
+    <span aria-hidden="true">·</span>
+    <span id="status-coordinates">45.447° N, 8.927° E</span>
+  </span>
+</div>
+
+<script src="assets/tz-lookup.js"></script>
+<div id="photo-life-tooltip" class="star-tooltip" role="tooltip" aria-hidden="true">
+  <strong></strong><div class="photo-life-details"></div>
+</div>
+<div id="photo-rotate-hint"><span>Ruota il telefono per esplorare tutto il panorama.</span><button type="button" aria-label="Chiudi il suggerimento">×</button></div>
+<script src="assets/photo-seasons.js?v=snow-paused-accelerated-20261024"></script>
+<script src="assets/photo-skyline.js?v=precise-sky-20261023"></script>
+<script src="assets/photo-landscape.js?v=moon-size-20261024"></script>
+<script src="assets/photo-life-model.js?v=window-lights-20261027"></script>
+<script src="assets/photo-visitors.js?v=no-flights-accelerated-20261027"></script>
+<script src="assets/photo-life.js?v=summer-smoke-20261027"></script>
+<script src="assets/odle-astronomy.js?v=core-20261027"></script>
+<script src="assets/odle-scene.js?v=time-speed-20261027"></script>
+<script src="assets/odle-ui.js?v=core-20261027"></script>
+
+
+
+</body></html>

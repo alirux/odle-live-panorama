@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Help · Home Page di Lirux</title>
+<link rel="canonical" href="https://www.alilab.it/help.html">
+  <meta name="description" content="Guida alla simulazione interattiva del cielo della Home Page di Lirux.">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="favicon.png" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#08101e">
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      color-scheme: dark;
+      --night:#07101e;
+      --night-soft:#0d1a2b;
+      --paper:#f1f0e8;
+      --ink:#20312e;
+      --muted:#667570;
+      --line:rgba(33,54,50,.16);
+      --blue:#50758f;
+      --amber:#d49a57;
+      --max:1180px;
+    }
+    html { scroll-behavior:smooth; }
+    body {
+      margin:0;
+      background:var(--paper);
+      color:var(--ink);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      font-size:16px;
+      line-height:1.6;
+    }
+    a { color:inherit; }
+    img { display:block; width:100%; height:auto; }
+    button { font:inherit; }
+    .topbar {
+      position:sticky;
+      top:0;
+      z-index:10;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      background:rgba(7,16,30,.86);
+      color:#eef3f4;
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+    .topbar-inner {
+      width:min(var(--max),calc(100% - 40px));
+      min-height:58px;
+      margin:auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+    .back,.language {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:36px;
+      padding:7px 10px;
+      border:0;
+      border-radius:10px;
+      background:transparent;
+      color:inherit;
+      text-decoration:none;
+      cursor:pointer;
+      opacity:.82;
+    }
+    .back:hover,.back:focus-visible,.language:hover,.language:focus-visible { background:rgba(255,255,255,.09); opacity:1; outline:none; }
+    .back svg,.language svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+    .topbar strong { font-size:14px; letter-spacing:.04em; }
+    .hero {
+      position:relative;
+      overflow:hidden;
+      /* the night band below fades into the same blue, so text and picture share one sky */
+      padding:clamp(58px,7.4vw,104px) 20px clamp(228px,24vw,338px);
+      background:linear-gradient(180deg,#060e1c 0%,#08142a 58%,#0b1a33 100%);
+      color:#eef3f4;
+    }
+    .hero-photo {
+      position:absolute;
+      left:0;
+      bottom:0;
+      z-index:0;
+      width:100%;
+      height:auto;
+      -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 36%);
+      mask-image:linear-gradient(180deg,transparent 0,#000 36%);
+    }
+    .hero::before {
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:1;
+      background:linear-gradient(180deg,rgba(5,16,34,.72) 0%,rgba(5,16,34,.34) 30%,rgba(5,16,34,.08) 48%,rgba(5,16,34,0) 62%);
+    }
+    .hero::after {
+      content:"";
+      position:absolute;
+      inset:auto -8% -70px;
+      z-index:2;
+      height:170px;
+      background:var(--paper);
+      clip-path:polygon(0 79%,12% 38%,25% 71%,39% 27%,54% 65%,68% 20%,83% 59%,100% 31%,100% 100%,0 100%);
+    }
+    .hero-inner { position:relative; z-index:3; width:min(900px,100%); margin:auto; text-align:center; }
+    .eyebrow { margin:0 0 14px; font-size:12px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; opacity:.62; }
+    h1 { margin:0; font-size:clamp(46px,8vw,92px); line-height:.93; font-weight:520; letter-spacing:-.045em; text-shadow:0 2px 30px rgba(4,10,22,.5); }
+    .lede { max-width:660px; margin:26px auto 0; font-size:clamp(17px,2.2vw,21px); line-height:1.55; color:rgba(238,243,244,.82); text-shadow:0 1px 18px rgba(4,10,22,.55); }
+    .hero-cta {
+      display:inline-block;
+      margin-top:26px;
+      padding:13px 26px;
+      border-radius:12px;
+      background:var(--amber);
+      color:#20140a;
+      font-size:15px;
+      font-weight:650;
+      text-decoration:none;
+      box-shadow:0 12px 30px rgba(212,154,87,.28);
+    }
+    .hero-cta:hover,.hero-cta:focus-visible { background:#dfa868; outline:none; }
+    .toc {
+      width:min(var(--max),calc(100% - 40px));
+      margin:28px auto 80px;
+      position:relative;
+      z-index:2;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:rgba(255,255,255,.82);
+      box-shadow:0 18px 55px rgba(32,49,46,.10);
+    }
+    .toc a { padding:18px 20px; text-decoration:none; font-size:14px; font-weight:650; border-right:1px solid var(--line); }
+    .toc a:last-child { border-right:0; }
+    .toc span { display:block; margin-bottom:4px; color:var(--amber); font-size:11px; letter-spacing:.12em; }
+    .toc a:hover,.toc a:focus-visible { background:#fff; outline:none; }
+    main { overflow:hidden; }
+    section { width:min(var(--max),calc(100% - 40px)); margin:0 auto clamp(96px,12vw,156px); scroll-margin-top:90px; }
+    .section-head { display:grid; grid-template-columns:100px minmax(0,650px); gap:28px; margin-bottom:42px; }
+    .section-no { color:var(--amber); font-size:13px; font-weight:750; letter-spacing:.16em; }
+    h2 { margin:0 0 14px; font-size:clamp(34px,5vw,58px); line-height:1; font-weight:530; letter-spacing:-.035em; }
+    .section-head p { margin:0; color:var(--muted); font-size:18px; }
+    .scene-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+    figure { margin:0; }
+    .shot {
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#dfe5e1;
+      box-shadow:0 12px 35px rgba(32,49,46,.08);
+    }
+    .shot img { aspect-ratio:16/9; object-fit:cover; }
+    .detail-shot img { transform:scale(var(--zoom,1.8)); transform-origin:var(--origin,center); }
+    .toolbar-shot { --zoom:2.35; --origin:left bottom; }
+    .panel-shot { --zoom:1.7; --origin:left bottom; }
+    .hud-shot { --zoom:1; --origin:center; }
+    .hud-shot img { aspect-ratio:5/1; }
+    .star-shot,
+    .planet-shot,
+    .iss-shot,
+    .landing-shot { --zoom:1; --origin:center; }
+    .peak-shot { --zoom:1.85; --origin:39% top; }
+    figcaption { padding:15px 3px 0; color:var(--muted); font-size:14px; }
+    figcaption strong { display:block; margin-bottom:2px; color:var(--ink); font-size:16px; }
+    .life-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:26px; }
+    .season-head { display:grid; grid-template-columns:100px minmax(0,650px); gap:28px; margin:76px 0 30px; }
+    .season-head h3 { margin:0 0 10px; font-size:28px; line-height:1.12; font-weight:580; letter-spacing:-.02em; }
+    .season-head p { margin:0; color:var(--muted); }
+    .scene-note { max-width:760px; margin:30px auto 0; padding:18px 22px; border-left:3px solid var(--amber); background:rgba(255,255,255,.56); color:var(--muted); }
+    .scene-note strong { color:var(--ink); }
+    .feature { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(310px,.75fr); gap:clamp(34px,6vw,74px); align-items:center; margin-top:26px; }
+    .feature + .feature { margin-top:76px; }
+    .feature.reverse { grid-template-columns:minmax(310px,.75fr) minmax(0,1.25fr); }
+    .feature.reverse .shot { order:2; }
+    .feature-copy h3 { margin:0 0 12px; font-size:28px; line-height:1.12; font-weight:580; letter-spacing:-.02em; }
+    .feature-copy p { margin:0 0 18px; color:var(--muted); }
+    .key-list { list-style:none; padding:0; margin:0; }
+    .key-list li { display:grid; grid-template-columns:42px 1fr; gap:12px; padding:10px 0; border-top:1px solid var(--line); }
+    .key-list svg { width:30px; height:30px; padding:6px; border:1px solid var(--line); border-radius:9px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+    .key-list strong { display:block; font-size:14px; }
+    .key-list span { color:var(--muted); font-size:13px; }
+    .hud-legend { display:grid; grid-template-columns:repeat(2,1fr); gap:0 34px; margin:20px 0 0; padding:0; list-style:none; counter-reset:hud; }
+    .hud-legend li { position:relative; padding:12px 0 12px 34px; border-top:1px solid var(--line); color:var(--muted); }
+    .hud-legend li::before { counter-increment:hud; content:counter(hud); position:absolute; left:0; top:12px; color:var(--amber); font-weight:750; }
+    .hud-legend strong { color:var(--ink); }
+    .interaction-note { margin:-14px 0 44px 128px; max-width:710px; padding:18px 20px; border-left:3px solid var(--amber); background:rgba(255,255,255,.56); color:var(--muted); }
+    .object-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+    .object-card { overflow:hidden; border:1px solid var(--line); border-radius:20px; background:rgba(255,255,255,.52); }
+    .object-card .shot { border:0; border-radius:0; box-shadow:none; }
+    .object-card .shot img { aspect-ratio:16/10; }
+    .object-copy { padding:24px 26px 27px; }
+    .object-copy h3 { display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin:0 0 8px; font-size:24px; line-height:1.1; font-weight:580; }
+    .object-copy h3 span { color:var(--amber); font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+    .object-copy p { margin:0; color:var(--muted); }
+    .object-card.wide { grid-column:1/-1; display:grid; grid-template-columns:1.2fr .8fr; }
+    .object-card.wide .shot img { height:100%; min-height:320px; aspect-ratio:auto; }
+    footer { padding:52px 20px; background:var(--night); color:#eef3f4; text-align:center; }
+    footer p { margin:0 0 18px; opacity:.68; }
+    footer a { display:inline-block; padding:10px 15px; border:1px solid rgba(255,255,255,.25); border-radius:11px; text-decoration:none; }
+    [data-lang="en"] { display:none !important; }
+    html[lang="en"] [data-lang="it"] { display:none !important; }
+    html[lang="en"] [data-lang="en"] { display:revert !important; }
+    html[lang="en"] figcaption strong[data-lang="en"] { display:block !important; }
+    @media (max-width:820px) {
+      .toc { grid-template-columns:repeat(2,1fr); }
+      .toc a { border-bottom:1px solid var(--line); }
+      .toc a:nth-child(2n) { border-right:0; }
+      .toc a:last-child { grid-column:1/-1; border-bottom:0; }
+      .season-head { grid-template-columns:1fr; gap:7px; }
+      .life-grid { grid-template-columns:1fr; }
+      .hero-photo { width:165%; left:50%; transform:translateX(-50%); }
+      .section-head { grid-template-columns:1fr; gap:7px; }
+      .scene-grid { grid-template-columns:repeat(2,1fr); }
+      .scene-grid .shot img { aspect-ratio:2/1; }
+      .feature,.feature.reverse { grid-template-columns:1fr; }
+      .feature.reverse .shot { order:0; }
+      .interaction-note { margin-left:0; }
+      .object-card.wide { display:block; }
+      .object-card.wide .shot img { min-height:0; aspect-ratio:16/10; }
+    }
+    @media (max-width:620px) {
+      .topbar-inner { width:min(100% - 20px,var(--max)); }
+      .topbar strong { display:none; }
+      .toc { width:calc(100% - 24px); margin-bottom:66px; }
+      .toc a { padding:14px; font-size:13px; }
+      section { width:calc(100% - 28px); margin-bottom:94px; }
+      .object-list { grid-template-columns:1fr; }
+      .object-card.wide { grid-column:auto; }
+      .hud-legend { grid-template-columns:1fr; }
+      .scene-grid { grid-template-columns:1fr; }
+      .hero-photo { width:230%; }
+    }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="back" id="home-link" href="/" aria-label="Torna alla scena">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>
+        <span data-lang="it">Torna alla scena</span><span data-lang="en">Back to the scene</span>
+      </a>
+      <strong>HOME PAGE DI LIRUX · HELP</strong>
+      <button class="language" id="language" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"></path></svg>
+        <span data-lang="it">English</span><span data-lang="en">Italiano</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <img class="hero-photo" src="/assets/help/hero-band.jpg" width="2200" height="773" alt="" aria-hidden="true">
+      <div class="hero-inner">
+        <p class="eyebrow" data-lang="it">Come si guarda</p><p class="eyebrow" data-lang="en">How to watch</p>
+        <h1 data-lang="it">Sembra una cartolina</h1><h1 data-lang="en">It looks like a postcard</h1>
+        <p class="lede" data-lang="it">Non lo è. Il Sole e la Luna passano davvero là sopra, e la montagna sotto ha le sue ore: qualcosa si fa vedere solo all’alba, qualcos’altro passa una volta sola. Qui trovi dove guardare, non cosa troverai.</p>
+        <p class="lede" data-lang="en">It is not. The Sun and the Moon really do pass up there, and the mountain below keeps its own hours: some things show up only at dawn, others pass by just once. This page tells you where to look, not what you will find.</p>
+        <a class="hero-cta" href="/" data-lang="it">Apri la scena interattiva</a><a class="hero-cta" href="/?lang=en" data-lang="en">Open the interactive scene</a>
+      </div>
+    </div>
+
+    <nav class="toc" aria-label="Indice">
+      <a href="#scena"><span>01</span><i data-lang="it">La scena</i><i data-lang="en">The scene</i></a>
+      <a href="#controlli"><span>02</span><i data-lang="it">Controlli</i><i data-lang="en">Controls</i></a>
+      <a href="#hud"><span>03</span><i data-lang="it">Dati HUD</i><i data-lang="en">HUD data</i></a>
+      <a href="#oggetti"><span>04</span><i data-lang="it">Punti interattivi</i><i data-lang="en">Interactive points</i></a>
+      <a href="#photographic-landscape"><span>05</span><i data-lang="it">Vita alla malga</i><i data-lang="en">Life at the hut</i></a>
+    </nav>
+
+    <section id="scena">
+      <div class="section-head"><span class="section-no" data-lang="it">01 · SCENA</span><span class="section-no" data-lang="en">01 · SCENE</span><div>
+        <h2 data-lang="it">Un giorno intero, in quattro momenti</h2><h2 data-lang="en">A full day, in four moments</h2>
+        <p data-lang="it">La luce della scena e il cielo astronomico seguono data, ora e posizione. Una leggera foschia anima il paesaggio, che cambia anche con le stagioni.</p><p data-lang="en">The scene’s light and astronomical sky follow date, time and location. A subtle mist animates the landscape, which also changes with the seasons.</p>
+      </div></div>
+      <div class="scene-grid">
+        <figure><div class="shot"><img src="/assets/help/artistic-dawn.png" alt="Il paesaggio montano all’alba"></div><figcaption><strong data-lang="it">Alba</strong><strong data-lang="en">Dawn</strong><span data-lang="it">Il Sole affiora e la scena si accende gradualmente.</span><span data-lang="en">The Sun rises and the scene gradually comes to life.</span></figcaption></figure>
+        <figure><div class="shot"><img src="/assets/help/artistic-day.png" alt="Il paesaggio montano durante il giorno"></div><figcaption><strong data-lang="it">Giorno</strong><strong data-lang="en">Day</strong><span data-lang="it">Pascolo illuminato, cielo chiaro e stelle nascoste dalla luce.</span><span data-lang="en">A sunlit pasture, bright sky and stars hidden by daylight.</span></figcaption></figure>
+        <figure><div class="shot"><img src="/assets/help/artistic-sunset.png" alt="Il paesaggio montano al tramonto"></div><figcaption><strong data-lang="it">Tramonto</strong><strong data-lang="en">Sunset</strong><span data-lang="it">La luce si scalda e i primi oggetti celesti emergono.</span><span data-lang="en">The light warms and the first celestial objects appear.</span></figcaption></figure>
+        <figure><div class="shot"><img src="/assets/help/artistic-night.png" alt="Il paesaggio montano di notte"></div><figcaption><strong data-lang="it">Notte</strong><strong data-lang="en">Night</strong><span data-lang="it">Stelle, pianeti e Luna diventano protagonisti.</span><span data-lang="en">Stars, planets and the Moon take centre stage.</span></figcaption></figure>
+      </div>
+      <div class="season-head"><span class="section-no" data-lang="it">INVERNO</span><span class="section-no" data-lang="en">WINTER</span><div>
+        <h3 data-lang="it">E un inverno sulle Odle</h3><h3 data-lang="en">And a winter in the Odle</h3>
+        <p data-lang="it">Dal 1° dicembre al 31 gennaio il paesaggio è innevato. Nell’ultima settimana di novembre la neve arriva un po’ alla volta e nella prima settimana di febbraio si scioglie: con l’avanti veloce la vedi cambiare giorno dopo giorno. In inverno nevica a brevi intervalli, più a lungo mentre la neve si accumula; il cielo si copre prima dei primi fiocchi e torna sereno dopo gli ultimi.</p>
+        <p data-lang="en">From 1 December to 31 January the landscape is covered in snow. In the last week of November the snow arrives little by little, and in the first week of February it melts: with fast forward you can watch it change day by day. In winter it snows in short spells, longer while the snow is building up; the sky clouds over before the first flakes and clears after the last ones.</p>
+      </div></div>
+      <div class="scene-grid">
+        <figure><div class="shot"><img src="/assets/help/winter-first-snow.jpg" loading="lazy" alt="La prima neve sul prato della malga, sotto un cielo coperto"></div><figcaption><strong data-lang="it">Prima neve</strong><strong data-lang="en">First snow</strong><span data-lang="it">Il prato imbianca e le mucche lasciano il pascolo.</span><span data-lang="en">The meadow turns white and the cows leave the pasture.</span></figcaption></figure>
+        <figure><div class="shot"><img src="/assets/help/winter-sun.jpg" loading="lazy" alt="La malga innevata sotto un cielo sereno"></div><figcaption><strong data-lang="it">Neve al sole</strong><strong data-lang="en">Snow in the sun</strong><span data-lang="it">La neve luccica e lo slittino aspetta davanti al fienile.</span><span data-lang="en">The snow sparkles and the sled waits by the barn.</span></figcaption></figure>
+        <figure><div class="shot"><img src="/assets/help/winter-snowfall.jpg" loading="lazy" alt="Una nevicata sulla malga sotto un cielo grigio"></div><figcaption><strong data-lang="it">Nevicata</strong><strong data-lang="en">Snowfall</strong><span data-lang="it">Albert, Benedikta, Anna e Nebbia aspettano in casa.</span><span data-lang="en">Albert, Benedikta, Anna and Nebbia wait indoors.</span></figcaption></figure>
+        <figure><div class="shot"><img src="/assets/help/winter-night.jpg" loading="lazy" alt="La malga innevata di notte"></div><figcaption><strong data-lang="it">Notte d’inverno</strong><strong data-lang="en">Winter night</strong><span data-lang="it">Il camino fuma anche di notte, appena visibile al buio.</span><span data-lang="en">The chimney smokes through the night, barely visible in the dark.</span></figcaption></figure>
+      </div>
+      <aside class="scene-note"><span data-lang="it"><strong>Scena artistica.</strong> Il panorama usa immagini generate e rielaborate con AI. Non è una fotografia documentaria.</span><span data-lang="en"><strong>Artistic scene.</strong> The panorama uses AI-generated and reworked images. It is not a documentary photograph.</span></aside>
+    </section>
+
+    <section id="controlli">
+      <div class="section-head"><span class="section-no" data-lang="it">02 · CONTROLLI</span><span class="section-no" data-lang="en">02 · CONTROLS</span><div>
+        <h2 data-lang="it">Muoviti nel tempo e nello spazio</h2><h2 data-lang="en">Move through time and space</h2>
+        <p data-lang="it">La barra in basso governa la simulazione. Su computer fermati su un tasto per leggerne il nome; su touch i pulsanti sono dimensionati per il tocco.</p><p data-lang="en">The bottom toolbar controls the simulation. On desktop, hover over a button to read its name; touch targets are sized for mobile.</p>
+      </div></div>
+      <div class="feature">
+        <div class="shot detail-shot toolbar-shot"><img src="/assets/help/ui-toolbar.jpg" alt="Barra dei controlli della simulazione"></div>
+        <div class="feature-copy">
+          <h3 data-lang="it">Tasti di controllo</h3><h3 data-lang="en">Control buttons</h3>
+          <ul class="key-list">
+            <li><svg viewBox="0 0 20 20"><path d="M9 5l-5 5 5 5M16 5l-5 5 5 5"></path></svg><div><strong data-lang="it">Indietro veloce</strong><strong data-lang="en">Fast rewind</strong><span data-lang="it">Fa scorrere indietro la simulazione.</span><span data-lang="en">Runs the simulation backwards.</span></div></li>
+            <li><svg viewBox="0 0 20 20"><path d="M7 5v10M13 5v10"></path></svg><div><strong data-lang="it">Pausa / Riprendi</strong><strong data-lang="en">Pause / Resume</strong><span data-lang="it">Ferma il tempo oppure lo fa ripartire a velocità reale. L’icona mostra lo stato: ▶ mentre il tempo scorre, ‖ quando è fermo.</span><span data-lang="en">Stops time or restarts it at real speed. The icon shows the current state: ▶ while time runs, ‖ when it is stopped.</span></div></li>
+            <li><svg viewBox="0 0 20 20"><path d="M4 5l5 5-5 5M11 5l5 5-5 5"></path></svg><div><strong data-lang="it">Avanti veloce</strong><strong data-lang="en">Fast forward</strong><span data-lang="it">Accelera il tempo per osservare l’evoluzione della scena.</span><span data-lang="en">Speeds up time to reveal how the scene evolves.</span></div></li>
+            <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6.5"></circle><path d="M10 6.5V10l2.6 1.7"></path></svg><div><strong data-lang="it">Adesso</strong><strong data-lang="en">Now</strong><span data-lang="it">Torna a data, ora e velocità reali.</span><span data-lang="en">Returns to the real date, time and speed.</span></div></li>
+            <li><svg viewBox="0 0 20 20"><path d="M3 6h6M13 6h4M3 14h4M11 14h6"></path><circle cx="11" cy="6" r="2"></circle><circle cx="9" cy="14" r="2"></circle></svg><div><strong data-lang="it">Quando e dove</strong><strong data-lang="en">When and where</strong><span data-lang="it">Apre data, ora e posizione dell’osservatore.</span><span data-lang="en">Opens the observer’s date, time and position.</span></div></li>
+            <li><svg viewBox="0 0 20 20"><path d="M3.5 7.5v-4h4M16.5 7.5v-4h-4M3.5 12.5v4h4M16.5 12.5v4h-4"></path></svg><div><strong data-lang="it">Schermo intero</strong><strong data-lang="en">Full screen</strong><span data-lang="it">Mostra solo la scena, dove il browser lo consente.</span><span data-lang="en">Shows only the scene, where the browser allows it.</span></div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="feature reverse">
+        <div class="shot detail-shot panel-shot"><img src="/assets/help/panel-when-where.jpg" alt="Pannello per scegliere luogo, data e ora"></div>
+        <div class="feature-copy">
+          <h3 data-lang="it">Quando e dove</h3><h3 data-lang="en">When and where</h3>
+          <p data-lang="it">Trascina il mappamondo e seleziona un punto, scegli una delle 41 località note oppure inserisci latitudine e longitudine. Imposta data e ora, poi conferma con ✓. La posizione resta nel browser e serve solo a calcolare il cielo. «Usa la mia posizione» compila i campi e centra il mappamondo dopo il tuo consenso; conferma con ✓ per applicarla.</p>
+          <p data-lang="en">Drag the globe and select a point, choose one of 41 known locations, or enter latitude and longitude. Set date and time, then confirm with ✓. Your position stays in the browser and is only used to calculate the sky. “Use my location” fills the fields and centres the globe after your permission; confirm with ✓ to apply it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="hud">
+      <div class="section-head"><span class="section-no" data-lang="it">03 · HUD</span><span class="section-no" data-lang="en">03 · HUD</span><div>
+        <h2 data-lang="it">Leggi il momento a colpo d’occhio</h2><h2 data-lang="en">Read the moment at a glance</h2>
+        <p data-lang="it">Il pannello in basso a destra riassume le condizioni astronomiche per il luogo scelto.</p><p data-lang="en">The panel at bottom right summarises astronomical conditions for the selected location.</p>
+      </div></div>
+      <div class="shot detail-shot hud-shot"><img src="/assets/help/ui-hud.jpg" alt="HUD con data, ora, alba, tramonto, fase lunare e coordinate"></div>
+      <ol class="hud-legend">
+        <li><strong data-lang="it">Data e ora</strong><strong data-lang="en">Date and time</strong><span data-lang="it"> Il momento simulato.</span><span data-lang="en"> The simulated moment.</span></li>
+        <li><strong data-lang="it">Fuso orario</strong><strong data-lang="en">Time zone</strong><span data-lang="it"> Calcolato dalla posizione, non dal dispositivo.</span><span data-lang="en"> Calculated from the location, not the device.</span></li>
+        <li><strong data-lang="it">Alba e tramonto</strong><strong data-lang="en">Sunrise and sunset</strong><span data-lang="it"> Gli orari locali dei due eventi solari.</span><span data-lang="en"> Local times for both solar events.</span></li>
+        <li><strong data-lang="it">Fase lunare</strong><strong data-lang="en">Moon phase</strong><span data-lang="it"> L’icona mostra la porzione illuminata della Luna.</span><span data-lang="en"> The icon shows the illuminated portion of the Moon.</span></li>
+        <li><strong data-lang="it">Coordinate</strong><strong data-lang="en">Coordinates</strong><span data-lang="it"> Latitudine e longitudine del punto di osservazione.</span><span data-lang="en"> Latitude and longitude of the observation point.</span></li>
+      </ol>
+      <aside class="scene-note"><span data-lang="it"><strong>Bussola.</strong> In alto a destra la bussola ricorda che la scena guarda sempre verso sud.</span><span data-lang="en"><strong>Compass.</strong> At top right, the compass reminds you that the scene always faces south.</span></aside>
+    </section>
+
+    <section id="oggetti">
+      <div class="section-head"><span class="section-no" data-lang="it">04 · OGGETTI</span><span class="section-no" data-lang="en">04 · OBJECTS</span><div>
+        <h2 data-lang="it">Trova i punti interattivi</h2><h2 data-lang="en">Find interactive points</h2>
+        <p data-lang="it">Gli oggetti reali del cielo e alcuni dettagli del paesaggio nascondono informazioni da esplorare.</p><p data-lang="en">Real sky objects and selected landscape details reveal extra information.</p>
+      </div></div>
+      <p class="interaction-note" data-lang="it"><strong>Come usarli.</strong> Muovi il puntatore vicino a un oggetto: il cursore a mirino segnala che è interattivo. Passaci sopra per aprire la scheda. Su touch, tocca una volta per fissarla e di nuovo per chiuderla.</p>
+      <p class="interaction-note" data-lang="en"><strong>How to use them.</strong> Move the pointer near an object: the crosshair cursor signals that it is interactive. Hover over it to open its card. On touch, tap once to pin it and again to close it.</p>
+      <div class="object-list">
+        <article class="object-card"><div class="shot detail-shot star-shot"><img src="/assets/help/point-star.jpg" alt="Tooltip informativo di una stella"></div><div class="object-copy"><h3><span data-lang="it">Stelle</span><span data-lang="en">Stars</span><span>01</span></h3><p data-lang="it">Le stelle principali mostrano nome, classe stellare e distanza in anni luce.</p><p data-lang="en">Major stars show their name, stellar class and distance in light-years.</p></div></article>
+        <article class="object-card"><div class="shot detail-shot planet-shot"><img src="/assets/help/point-planet.jpg" alt="Tooltip informativo di un pianeta"></div><div class="object-copy"><h3><span data-lang="it">Pianeti</span><span data-lang="en">Planets</span><span>02</span></h3><p data-lang="it">Per ogni pianeta trovi tipologia, distanza dalla Terra e dal Sole, diametro e durata dell’anno.</p><p data-lang="en">Each planet shows its type, distance from Earth and Sun, diameter and orbital year.</p></div></article>
+        <article class="object-card"><div class="shot detail-shot iss-shot"><img src="/assets/help/point-iss.jpg" alt="Tooltip informativo della Stazione Spaziale Internazionale"></div><div class="object-copy"><h3><span>ISS</span><span>03</span></h3><p data-lang="it">Quando passa sopra l’orizzonte, mostra distanza, quota, periodo orbitale, inclinazione e velocità.</p><p data-lang="en">When above the horizon, it shows distance, altitude, orbital period, inclination and speed.</p></div></article>
+        
+        <article class="object-card"><div class="shot detail-shot star-shot"><img src="/assets/help/point-sun.jpg" loading="lazy" alt="Scheda informativa del Sole"></div><div class="object-copy"><h3><span data-lang="it">Sole</span><span data-lang="en">Sun</span><span>04</span></h3><p data-lang="it">Tipo di stella, altezza sopra l’orizzonte, azimut e distanza media. Le montagne possono nascondere il disco solare.</p><p data-lang="en">Stellar type, altitude above the horizon, azimuth and mean distance. Mountains can hide the solar disc.</p></div></article>
+        <article class="object-card"><div class="shot detail-shot star-shot"><img src="/assets/help/point-moon.jpg" loading="lazy" alt="Scheda informativa della Luna"></div><div class="object-copy"><h3><span data-lang="it">Luna</span><span data-lang="en">Moon</span><span>05</span></h3><p data-lang="it">Fase lunare, percentuale illuminata, altezza e distanza. La porzione illuminata cambia con la data selezionata.</p><p data-lang="en">Moon phase, illuminated percentage, altitude and distance. The illuminated portion changes with the selected date.</p></div></article>
+        <article class="object-card wide"><div class="shot detail-shot peak-shot"><img src="/assets/help/photo-peak-furchetta.png" alt="Tooltip informativo di una cima montuosa"></div><div class="object-copy"><h3><span data-lang="it">Cime</span><span data-lang="en">Peaks</span><span>06</span></h3><p data-lang="it">Sposta il puntatore sulle vette del gruppo delle Odle per riconoscere Furchetta e Sass Rigais e leggerne l’altitudine.</p><p data-lang="en">Move over the Odle peaks to identify Furchetta and Sass Rigais and read their elevation.</p></div></article>
+      </div>
+    </section>
+    <section id="photographic-landscape">
+      <div class="section-head"><span class="section-no" data-lang="it">05 · MALGA</span><span class="section-no" data-lang="en">05 · HUT</span><div>
+        <h2 data-lang="it">La vita alla malga</h2><h2 data-lang="en">Life at the hut</h2>
+        <p data-lang="it">Persone, animali e velivoli seguono l’ora del giorno e la stagione.</p><p data-lang="en">People, animals and aircraft follow the time of day and the season.</p>
+      </div></div>
+      <div class="life-grid">
+        <figure><div class="shot"><img src="/assets/help/life-couple.jpg" loading="lazy" alt="Albert e Benedikta davanti alla malga con Nebbia e Anna, tra le mucche al pascolo"></div><figcaption><strong data-lang="it">Albert e Benedikta</strong><strong data-lang="en">Albert and Benedikta</strong><span data-lang="it">Di giorno sulla porta di casa, con il cane Nebbia e le mucche al pascolo.</span><span data-lang="en">On the doorstep by day, with their dog Nebbia and the cows grazing.</span></figcaption></figure>
+        <figure><div class="shot"><img src="/assets/help/life-anna.jpg" loading="lazy" alt="Anna seduta nella neve davanti alla malga, con giacca e sciarpa"></div><figcaption><strong>Anna</strong><span data-lang="it">D’estate raccoglie fiori nel prato, d’inverno gioca con la neve.</span><span data-lang="en">She picks flowers in the meadow in summer and plays in the snow in winter.</span></figcaption></figure>
+        <figure><div class="shot"><img src="/assets/help/life-deer.jpg" loading="lazy" alt="Una capriola e il suo cerbiatto sul prato accanto al sentiero, al tramonto"></div><figcaption><strong data-lang="it">Selva e Ghianda</strong><strong data-lang="en">Selva and Ghianda</strong><span data-lang="it">Capriola e cerbiatto: escono dal bosco solo all’alba e al tramonto.</span><span data-lang="en">A roe deer and her fawn: they leave the forest only at dawn and dusk.</span></figcaption></figure>
+      </div>
+      <p data-lang="it">D’estate Carolina, Bianca e Alma pascolano accanto alla malga e di giorno passano un elicottero di soccorso e un parapendio. D’inverno le mucche lasciano il pascolo, Albert, Benedikta e Anna si coprono e rientrano quando nevica, e il camino fuma anche di notte. Ognuno ha una scheda: passaci sopra, toccalo o raggiungilo con Tab.</p>
+      <p data-lang="en">In summer Carolina, Bianca and Alma graze beside the hut, and a rescue helicopter and a paraglider pass by during the day. In winter the cows leave the pasture, Albert, Benedikta and Anna wrap up and go inside when it snows, and the chimney smokes through the night. Each one has a card: hover over it, tap it or reach it with Tab.</p>
+      <p data-lang="it">È una composizione artistica: il cielo è una proiezione verso sud e le stagioni seguono il calendario alpino ovunque tu sia. Sul telefono ruota lo schermo per vedere tutto il panorama.</p>
+      <p data-lang="en">This is an artistic composition: the sky is a south-facing projection and the seasons follow the Alpine calendar wherever you are. On a phone, rotate the screen to see the whole panorama.</p>
+      <p data-lang="it">Immagini rielaborate con ImageGen a partire dal paesaggio generato e dalla foto di riferimento <a href="https://commons.wikimedia.org/wiki/File:Gruppo_delle_Odle_dalla_malga_Geisleralm.jpg">«Gruppo delle Odle dalla malga Geisleralm» di Luca Lorenzi</a>. Modifiche: composizione, luce e cielo. Le immagini derivate sono distribuite con licenza <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</p>
+      <p data-lang="en">Images reworked with ImageGen from the generated landscape and the reference photograph <a href="https://commons.wikimedia.org/wiki/File:Gruppo_delle_Odle_dalla_malga_Geisleralm.jpg">“Gruppo delle Odle dalla malga Geisleralm” by Luca Lorenzi</a>. Changes: composition, lighting and sky. Derived images are distributed under <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p data-lang="it">Pronto a guardare il cielo da un altro punto di vista?</p><p data-lang="en">Ready to see the sky from somewhere else?</p>
+    <a id="footer-home-link" href="/" data-lang="it">Apri la scena interattiva</a><a href="/?lang=en" data-lang="en">Open the interactive scene</a>
+    <p><a href="/privacy.html" data-lang="it">Privacy</a><a href="/privacy.html?lang=en" data-lang="en">Privacy</a> · <a href="/licence.html" data-lang="it">Licenza</a><a href="/licence.html?lang=en" data-lang="en">Licence</a></p>
+  </footer>
+  <script>
+    const languageButton = document.querySelector("#language");
+    const homeLink = document.querySelector("#home-link");
+    let language = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "it";
+    function applyLanguage() {
+      document.documentElement.lang = language;
+      document.title = language === "en" ? "Help · Lirux's Home Page" : "Help · Home Page di Lirux";
+      document.querySelector('meta[name="description"]').content = language === "en" ? "Guide to the interactive sky simulation on Lirux's Home Page." : "Guida alla simulazione interattiva del cielo della Home Page di Lirux.";
+      languageButton.setAttribute("aria-label",language === "en" ? "Passa all’italiano" : "Switch to English");
+      homeLink.href = language === "en" ? "/?lang=en" : "/";
+      homeLink.setAttribute("aria-label", language === "en" ? "Back to the scene" : "Torna alla scena");
+      document.querySelector(".toc").setAttribute("aria-label", language === "en" ? "Contents" : "Indice");
+      const url = new URL(location.href);
+      language === "en" ? url.searchParams.set("lang","en") : url.searchParams.delete("lang");
+      history.replaceState(null,"",url);
+    }
+    languageButton.addEventListener("click",() => { language = language === "it" ? "en" : "it"; applyLanguage(); });
+    applyLanguage();
+  </script>
+</body>
+</html>
