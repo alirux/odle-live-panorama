@@ -2,7 +2,7 @@
 
 A macOS screen saver showing the photographic Odle scene: the Val di Funes landscape with the sky computed for the real time, the seasons, the mountain hut and its inhabitants. It keeps only the landscape: panels, controls, tooltips and interactive points are turned off.
 
-![Preview of the scene](../preview.jpg)
+![Preview of the scene](../preview-summer.jpg)
 
 ## Requirements
 

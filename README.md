@@ -2,7 +2,10 @@
 
 A photographic panorama of the Odle peaks in Val di Funes under a live sky. Sun, Moon, planets, stars and the ISS are computed for the real moment and place; the light moves from dawn to night, winter brings snow, and people and animals come to the mountain hut on their own schedules.
 
-![The Odle scene](docs/preview.jpg)
+<p>
+  <img src="docs/preview-summer.jpg" alt="The Odle scene in summer, in the evening light" width="49%">
+  <img src="docs/preview-winter.jpg" alt="The Odle scene in winter, under snow" width="49%">
+</p>
 
 The scene is shipped as three separate products, built from the same sources:
 
