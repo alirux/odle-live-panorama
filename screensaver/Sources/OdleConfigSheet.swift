@@ -8,6 +8,9 @@ final class OdleConfigSheet: NSObject {
   var onSave: (() -> Void)?
   private static let seasons: [OdleSettings.Season] = [.automatic, .winter, .summer]
   private static let timeModes: [OdleSettings.TimeMode] = [.real, .accelerated, .fixed]
+  // The site's pages, in English like this window.
+  private static let privacyURL = URL(string: "https://www.alilab.it/privacy.html?lang=en")!
+  private static let licenceURL = URL(string: "https://www.alilab.it/licence.html?lang=en")!
 
   private let timeMode = NSPopUpButton()
   private let fixedPicker = NSDatePicker()
@@ -56,6 +59,12 @@ final class OdleConfigSheet: NSObject {
     let buttons = NSStackView(views: [cancel, ok])
     buttons.spacing = 12
 
+    let links = NSStackView(views: [
+      link("Privacy", Self.privacyURL, #selector(openPrivacy)),
+      link("Licence", Self.licenceURL, #selector(openLicence)),
+    ])
+    links.spacing = 14
+
     func row(_ title: String, _ control: NSView) -> NSStackView {
       let label = NSTextField(labelWithString: title)
       label.alignment = .right
@@ -85,7 +94,7 @@ final class OdleConfigSheet: NSObject {
     form.spacing = 12
 
     let content = NSView()
-    for view in [form, buttons] {
+    for view in [form, buttons, links] {
       view.translatesAutoresizingMaskIntoConstraints = false
       content.addSubview(view)
     }
@@ -96,8 +105,30 @@ final class OdleConfigSheet: NSObject {
       buttons.topAnchor.constraint(equalTo: form.bottomAnchor, constant: 20),
       buttons.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -20),
       buttons.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -20),
+      links.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 20),
+      links.centerYAnchor.constraint(equalTo: buttons.centerYAnchor),
     ])
     window.contentView = content
+  }
+
+  // A borderless button that looks like a link and opens a page of the site.
+  private func link(_ title: String, _ url: URL, _ action: Selector) -> NSButton {
+    let button = NSButton(title: title, target: self, action: action)
+    button.isBordered = false
+    button.attributedTitle = NSAttributedString(string: title, attributes: [
+      .foregroundColor: NSColor.linkColor,
+      .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
+    ])
+    button.toolTip = url.absoluteString
+    return button
+  }
+
+  @objc private func openPrivacy() {
+    NSWorkspace.shared.open(Self.privacyURL)
+  }
+
+  @objc private func openLicence() {
+    NSWorkspace.shared.open(Self.licenceURL)
   }
 
   private func load(_ settings: OdleSettings) {

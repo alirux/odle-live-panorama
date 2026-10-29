@@ -29,7 +29,7 @@ To uninstall it, delete `~/Library/Screen Savers/Odle Dolomites Italy.saver` and
 
 ## Options
 
-In System Settings → Screen Saver → Options:
+In the screen saver settings (System Settings → Wallpaper → Screen Saver on macOS 26 and later, System Settings → Screen Saver before), button Options:
 
 - **Time**: real time, accelerated or a fixed time of day (local time of the chosen place). Accelerated starts from the current time and runs the clock faster: a whole day lasts 1 minute (the default), 3, 7, 15 or 30 minutes, so the sun, the moon, the stars and the light change visibly but slowly. Snow flurries, the rescue helicopter and the paraglider are paused while time is accelerated.
 - **Season**: automatic, winter or summer (the scene has no other seasons). The scene starts from mid January or mid July, at the current time of day (real or accelerated time); the seasons are reversed in the southern hemisphere.
@@ -38,6 +38,8 @@ In System Settings → Screen Saver → Options:
 - **Show Anna**: turn it off to remove the girl from the scene.
 - **Animate only the main display**: the other displays stop on the first frame once the scene is ready (the preview always moves).
 - **Reduce to 15 fps on battery**: on battery power the frame rate drops to 15.
+
+At the bottom left, the **Privacy** and **Licence** links open the site's privacy notice and licence page in the browser.
 
 ## Known limitations
 
