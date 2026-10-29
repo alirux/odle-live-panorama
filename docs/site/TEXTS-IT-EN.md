@@ -6,7 +6,7 @@ Inventory of index.html and of the scene components. It covers visible text, too
 
 | Italian | English |
 | --- | --- |
-| Home Page di Lirux | Lirux's Home Page |
+| Odle live panorama | Odle live panorama |
 | Benvenuto | Welcome |
 | Uno spazio interattivo tra montagne, stelle e... codice | An interactive space among mountains, stars and... code |
 | Collegamenti | Links |

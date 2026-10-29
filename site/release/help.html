@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Help · Home Page di Lirux</title>
+  <title>Help · Odle live panorama</title>
 <link rel="canonical" href="https://www.alilab.it/help.html">
-  <meta name="description" content="Guida alla simulazione interattiva del cielo della Home Page di Lirux.">
+  <meta name="description" content="Guida alla simulazione interattiva del cielo di Odle live panorama.">
   <link rel="icon" href="favicon.ico" sizes="32x32">
   <link rel="icon" href="favicon.png" type="image/png" sizes="64x64">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -246,7 +246,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>
         <span data-lang="it">Torna alla scena</span><span data-lang="en">Back to the scene</span>
       </a>
-      <strong>HOME PAGE DI LIRUX · HELP</strong>
+      <strong>ODLE LIVE PANORAMA · HELP</strong>
       <button class="language" id="language" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"></path></svg>
         <span data-lang="it">English</span><span data-lang="en">Italiano</span>
@@ -391,8 +391,8 @@
     let language = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "it";
     function applyLanguage() {
       document.documentElement.lang = language;
-      document.title = language === "en" ? "Help · Lirux's Home Page" : "Help · Home Page di Lirux";
-      document.querySelector('meta[name="description"]').content = language === "en" ? "Guide to the interactive sky simulation on Lirux's Home Page." : "Guida alla simulazione interattiva del cielo della Home Page di Lirux.";
+      document.title = "Help · Odle live panorama";
+      document.querySelector('meta[name="description"]').content = language === "en" ? "Guide to the interactive sky simulation in Odle live panorama." : "Guida alla simulazione interattiva del cielo di Odle live panorama.";
       languageButton.setAttribute("aria-label",language === "en" ? "Passa all’italiano" : "Switch to English");
       homeLink.href = language === "en" ? "/?lang=en" : "/";
       homeLink.setAttribute("aria-label", language === "en" ? "Back to the scene" : "Torna alla scena");

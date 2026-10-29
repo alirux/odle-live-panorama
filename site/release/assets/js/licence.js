@@ -1,6 +1,6 @@
 const strings = {
-  it: { help:"Aiuto", privacy:"Privacy", title:"Licenza e utilizzo", updated:"Ultimo aggiornamento", date:"10 ottobre 2026", back:"Torna alla home page", pageTitle:"Licenza e utilizzo · Home Page di Lirux" },
-  en: { help:"Help", privacy:"Privacy", title:"Licence and use", updated:"Last updated", date:"10 October 2026", back:"Back to the home page", pageTitle:"Licence and use · Lirux's Home Page" }
+  it: { help:"Aiuto", privacy:"Privacy", title:"Licenza e utilizzo", updated:"Ultimo aggiornamento", date:"10 ottobre 2026", back:"Torna alla home page", pageTitle:"Licenza e utilizzo · Odle live panorama" },
+  en: { help:"Help", privacy:"Privacy", title:"Licence and use", updated:"Last updated", date:"10 October 2026", back:"Back to the home page", pageTitle:"Licence and use · Odle live panorama" }
 };
 
 function applyLanguage(lang) {

@@ -534,7 +534,7 @@ function sunsetDirectionBias() {
 
 const interfaceText = {
   it:{
-    pageTitle:"Home Page di Lirux",
+    pageTitle:"Odle live panorama",
     welcome:"Benvenuto",
     tagline:"Uno spazio <em>interattivo</em> tra montagne, stelle e... codice",
     links:"Collegamenti",
@@ -575,7 +575,7 @@ const interfaceText = {
     continentLabels:["Nord America","Sud America","Europa","Africa","Asia","Australia"]
   },
   en:{
-    pageTitle:"Lirux's Home Page",
+    pageTitle:"Odle live panorama",
     welcome:"Welcome",
     tagline:"An <em>interactive</em> space among mountains, stars and... code",
     links:"Links",
