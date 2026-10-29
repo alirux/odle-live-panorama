@@ -5,6 +5,8 @@ A photographic panorama of the Odle peaks in Val di Funes under a live sky. Sun,
 <p>
   <img src="docs/preview-summer.jpg" alt="The Odle scene in summer, in the evening light" width="49%">
   <img src="docs/preview-winter.jpg" alt="The Odle scene in winter, under snow" width="49%">
+  <img src="docs/preview-snowfall.jpg" alt="The Odle scene while it snows" width="49%">
+  <img src="docs/preview-night.jpg" alt="The Odle scene on a summer night, with the hut windows lit" width="49%">
 </p>
 
 The scene is shipped as three separate products, built from the same sources:
