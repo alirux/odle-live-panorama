@@ -48,12 +48,8 @@
         this.name = this.tooltip.querySelector('strong');
         this.details = this.tooltip.querySelector('.photo-life-details');
       }
-      for (const [name, src] of Object.entries({ cows: 'assets/photo/cows.webp' })) {
-        const image = new Image();
-        image.onload = () => { this.assets[name] = image; };
-        image.onerror = () => { console.warn(`Unable to load landscape asset: ${src}`); };
-        image.src = src;
-      }
+      this.requested = new Set();
+      this.load('cows', 'assets/photo/cows.webp');
       this.rotateHint = document.querySelector('#photo-rotate-hint');
       if (this.rotateHint) {
         try { this.rotateHint.hidden = localStorage.getItem('lirux-photo-rotate-dismissed') === '1'; } catch (_) {}
@@ -141,7 +137,10 @@
       }
       if (this.hovered && !this.point(this.hovered)) this.hide();
     }
-    tinted(name, state) {
+    // grade (optional) blends a photograph into the painted plates: mute
+    // takes away saturation, more by nightMute at night, and haze adds the
+    // pale daylight veil of distance.
+    tinted(name, state, grade) {
       const night = 1 - M.smooth(-15, -2, state.sunAltitude);
       const dusk = 1 - M.smooth(-10, 5, state.sunAltitude);
       const warmth = (1 - M.smooth(7, 28, state.sunAltitude)) * M.smooth(-12, -2, state.sunAltitude);
@@ -152,6 +151,14 @@
       plate.height = Math.round(plate.width * source.height / source.width);
       const c = plate.getContext('2d');
       c.drawImage(source, 0, 0, plate.width, plate.height);
+      if (grade) {
+        c.globalCompositeOperation = 'saturation';
+        c.fillStyle = `rgba(128,128,128,${Math.min(1, grade.mute + grade.nightMute * night)})`;
+        c.fillRect(0, 0, plate.width, plate.height);
+        c.globalCompositeOperation = 'source-atop';
+        c.fillStyle = `rgba(214,224,236,${grade.haze * (1 - night)})`;
+        c.fillRect(0, 0, plate.width, plate.height);
+      }
       c.globalCompositeOperation = 'source-atop';
       c.fillStyle = `rgba(227,147,72,${warmth * .16})`;
       c.fillRect(0, 0, plate.width, plate.height);
@@ -359,6 +366,210 @@
       ctx.drawImage(atlas, column * sw, cow.coat * sh, sw, sh, -width / 2, top, width, height);
       ctx.restore();
     }
+    // Seasonal plates are requested only when they can appear, so the rest of
+    // the year costs no download.
+    load(name, src) {
+      if (this.assets[name] || this.requested.has(name)) return;
+      this.requested.add(name);
+      const image = new Image();
+      image.onload = () => { this.assets[name] = image; };
+      image.onerror = () => { console.warn(`Unable to load landscape asset: ${src}`); };
+      image.src = src;
+    }
+    christmasBulbs(image) {
+      if (this.christmasBulbCache) return this.christmasBulbCache;
+      const plate = document.createElement('canvas');
+      plate.width = 512; plate.height = Math.round(512 * image.height / image.width);
+      const c = plate.getContext('2d');
+      c.drawImage(image, 0, 0, plate.width, plate.height);
+      const pixels = c.getImageData(0, 0, plate.width, plate.height).data;
+      const candidates = [];
+      for (let y = 1; y < plate.height - 1; y++) {
+        for (let x = 1; x < plate.width - 1; x++) {
+          const i = (y * plate.width + x) * 4;
+          const brightness = Math.min(pixels[i], pixels[i+1], pixels[i+2]);
+          if (brightness > 190) candidates.push({x,y,brightness});
+        }
+      }
+      candidates.sort((a,b) => b.brightness - a.brightness);
+      const bulbs = [];
+      for (const point of candidates) {
+        if (bulbs.every(b => Math.hypot(b.x-point.x,b.y-point.y) > 7)) bulbs.push(point);
+      }
+      // Each bright core owns its surrounding photographic halo and snow reflection.
+      // Nearest-core assignment prevents a neighbouring bulb from leaking into a patch.
+      const radius = 18;
+      const tile = (bulb, index, reach) => {
+        const canvas = document.createElement('canvas'); canvas.width = canvas.height = radius * 2;
+        const tc = canvas.getContext('2d'), patch = tc.createImageData(canvas.width,canvas.height);
+        for (let y=0;y<canvas.height;y++) for (let x=0;x<canvas.width;x++) {
+          const sx=bulb.x+x-radius, sy=bulb.y+y-radius;
+          if (sx<0 || sy<0 || sx>=plate.width || sy>=plate.height) continue;
+          const distance=Math.hypot(x-radius,y-radius);
+          if (distance>=reach || bulbs.some((b,j) => j!==index && Math.hypot(b.x-sx,b.y-sy)<distance)) continue;
+          const src=(sy*plate.width+sx)*4, dst=(y*canvas.width+x)*4;
+          patch.data[dst]=pixels[src]; patch.data[dst+1]=pixels[src+1]; patch.data[dst+2]=pixels[src+2];
+          patch.data[dst+3]=Math.round(255*(1-M.smooth(reach*.65,reach,distance)));
+        }
+        tc.putImageData(patch,0,0);
+        return canvas;
+      };
+      this.christmasBulbCache = bulbs.map((bulb,index) => ({
+        image:tile(bulb,index,radius),
+        // Core and halo only: the snow reflection belongs to the original spot.
+        core:tile(bulb,index,radius*.45),
+        x:(bulb.x-radius)/plate.width,y:(bulb.y-radius)/plate.height,
+        width:radius*2/plate.width,height:radius*2/plate.height
+      }));
+      // Add four intermediate swags, preserving the original spacing on each string.
+      const original = [...this.christmasBulbCache];
+      const cuts = [0, .26, .39, .51, .66, 1];
+      const strings = cuts.slice(0,-1).map((top,row) => original.filter(b => {
+        const center = b.y + b.height / 2;
+        return center >= top && center < cuts[row + 1];
+      }).sort((a,b) => a.x - b.x));
+      for (let row = 0; row < strings.length - 1; row++) {
+        const upper = strings[row], lower = strings[row + 1];
+        if (upper.length < 2 || lower.length < 2) continue;
+        const meanY = points => points.reduce((sum,b) => sum+b.y+b.height/2,0)/points.length;
+        const span = points => points[points.length-1].x-points[0].x;
+        const spread = (span(upper)+span(lower))/(2*span(upper));
+        const drop = (meanY(lower)-meanY(upper))/2;
+        for (const bulb of upper) {
+          this.christmasBulbCache.push({...bulb,image:bulb.core,
+            x:.5+(bulb.x+bulb.width/2-.5)*spread-bulb.width/2,
+            y:bulb.y+drop});
+        }
+      }
+      return this.christmasBulbCache;
+    }
+    // Light the strings cast on the needles: the tree silhouette, brighter
+    // towards the trunk, added over the tinted photograph.
+    christmasGlow() {
+      if (this.christmasGlowPlate) return this.christmasGlowPlate;
+      const source = this.assets.christmasTree, plate = document.createElement('canvas');
+      plate.width = 256; plate.height = Math.round(256 * source.height / source.width);
+      const c = plate.getContext('2d');
+      c.drawImage(source, 0, 0, plate.width, plate.height);
+      c.globalCompositeOperation = 'source-in';
+      const light = c.createRadialGradient(plate.width/2,plate.height*.55,0,plate.width/2,plate.height*.55,plate.height*.55);
+      light.addColorStop(0,'rgba(255,238,210,1)');
+      light.addColorStop(1,'rgba(255,238,210,.35)');
+      c.fillStyle = light; c.fillRect(0, 0, plate.width, plate.height);
+      return this.christmasGlowPlate = plate;
+    }
+    // A drift of snow piled round the trunk, in the blue of the shaded snow
+    // of the daytime plate there; the shared tint carries it into the night.
+    christmasMound() {
+      const plate = document.createElement('canvas');
+      plate.width = 128; plate.height = 32;
+      const c = plate.getContext('2d');
+      c.translate(64, 22); c.scale(60, 10);
+      const drift = c.createRadialGradient(0, -.25, 0, 0, 0, 1);
+      drift.addColorStop(0, 'rgba(184,192,212,1)');
+      drift.addColorStop(.55, 'rgba(158,172,202,.9)');
+      drift.addColorStop(1, 'rgba(132,152,192,0)');
+      c.fillStyle = drift; c.beginPath(); c.arc(0, 0, 1, 0, Math.PI * 2); c.fill();
+      return plate;
+    }
+    drawChristmasTree(ctx, state, options) {
+      const season = options.season;
+      const day = season?.christmasDay || 0;
+      if (!day || !season.snow || (season.christmasRemoval && options.hour >= options.sunriseHour)) return;
+      this.load('christmasTree', 'assets/photo/christmas-tree.webp');
+      this.load('christmasLights', 'assets/photo/christmas-lights.webp');
+      const tree = this.assets.christmasTree;
+      if (!tree) return;
+      const night = options.hour >= options.sunsetHour || options.hour < options.sunriseHour;
+      const lit = day === 7 && night && (!season.christmasFirstNight || options.hour >= options.sunsetHour);
+      const dark = 1 - M.smooth(-15, -2, state.sunAltitude);
+      const dusk = 1 - M.smooth(-10, 5, state.sunAltitude);
+      const clock = options.reducedMotion ? 0 : options.animationTime;
+      // Ornament colours under the same light as the photo plates (see tinted).
+      const veil = dusk * .20 + dark * .14;
+      const shade = (rgb, alpha = 1) => `rgba(${rgb.map((value, channel) => Math.round(
+        value * (1 - dark * .7 + dark * .7 * [66, 94, 140][channel] / 255) * (1 - veil) + [12, 23, 43][channel] * veil)).join(',')},${alpha})`;
+      ctx.save();
+      ctx.translate(991, 671);
+      this.shadow(ctx, 0, 0, 46, 7, .18);
+      // The photograph is a little sharper and greener than the painted
+      // spruces around it: muted, and more so at night, it sits among them.
+      ctx.drawImage(this.tinted('christmasTree', state, { mute: .22, nightMute: .4, haze: .1 }), -56, -160, 112, 164);
+      this.assets.christmasMound ||= this.christmasMound();
+      ctx.drawImage(this.tinted('christmasMound', state), -30, -6, 60, 15);
+      if (lit) {
+        ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .1;
+        ctx.drawImage(this.christmasGlow(), -56, -160, 112, 164);
+        ctx.restore();
+      }
+      // Each swag follows a branch tier; rear portions disappear into the foliage.
+      for (let tier = 0; tier < 5; tier++) {
+        const y = -126 + tier * 23, width = 9 + tier * 7;
+        if (day >= 2 && !lit) {
+          ctx.strokeStyle = shade([214, 182, 104], .75); ctx.lineWidth = .7;
+          ctx.beginPath(); ctx.moveTo(-width,y); ctx.quadraticCurveTo(0,y+15,width,y); ctx.stroke();
+        }
+        if (day >= (tier < 3 ? 3 : 5) && !lit) {
+          const count = 5 + tier * 3;
+          ctx.fillStyle = shade([238, 232, 214]);
+          for (let i = 0; i <= count; i++) {
+            const t = i / count, x = (2*t-1)*width, ly = y+30*t*(1-t);
+            ctx.beginPath(); ctx.arc(x,ly,.45,0,Math.PI*2); ctx.fill();
+          }
+        }
+        if (day >= (tier % 2 ? 6 : 4)) {
+          for (const side of [-1,1]) {
+            const x = side*width*.65, by = y+13;
+            ctx.strokeStyle = shade([150, 150, 140]); ctx.lineWidth = .4;
+            ctx.beginPath(); ctx.moveTo(x,by-3); ctx.lineTo(x,by); ctx.stroke();
+            ctx.fillStyle = shade((tier + (side > 0)) % 2 ? [201, 162, 74] : [168, 52, 48]);
+            ctx.beginPath(); ctx.arc(x,by+1.4,1.4,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = shade([255, 250, 240], .7);
+            ctx.beginPath(); ctx.arc(x-.45,by+.9,.35,0,Math.PI*2); ctx.fill();
+          }
+        }
+      }
+      const lights = this.assets.christmasLights;
+      if (lit && lights) {
+        const bulbs = this.christmasBulbs(lights);
+        ctx.save(); ctx.globalCompositeOperation = 'screen';
+        bulbs.forEach((bulb,index) => {
+          const seed = ((index + 1) * .61803398875) % 1;
+          const period = 7 + ((index * .41421356237) % 1) * 9;
+          const phase = clock / 1000 * Math.PI * 2 / period + seed * Math.PI * 2;
+          const wave = .5 - .5 * Math.cos(phase);
+          // A floor keeps every bulb glowing: the strings twinkle, they never go dark.
+          ctx.globalAlpha = options.reducedMotion ? .7 : .3 + .66 * M.smooth(.08,.92,wave);
+          ctx.drawImage(bulb.image, 0, 0, bulb.image.width, bulb.image.height,
+            -56 + bulb.x * 112, -160 + bulb.y * 164, bulb.width * 112, bulb.height * 164);
+        });
+        ctx.restore();
+      }
+      if (day === 7) {
+        ctx.fillStyle = lit ? '#fff7e6' : shade([222, 196, 120]);
+        ctx.beginPath();
+        for (let i=0;i<8;i++) {
+          const angle=i*Math.PI/4-Math.PI/2, r=i%2 ? 1 : 4;
+          ctx.lineTo(Math.cos(angle)*r,-155+Math.sin(angle)*r);
+        }
+        ctx.closePath(); ctx.fill();
+        if (lit) {
+          const halo = ctx.createRadialGradient(0,-155,0,0,-155,4);
+          halo.addColorStop(0, 'rgba(255,243,222,.29)');
+          halo.addColorStop(1, 'rgba(255,243,222,0)');
+          ctx.fillStyle = halo; ctx.fillRect(-4,-159,8,8);
+          ctx.fillStyle = 'rgba(255,243,222,.9)';
+          ctx.beginPath(); ctx.arc(0,-155,.8,0,Math.PI*2); ctx.fill();
+        }
+      }
+      if (lit) {
+        ctx.save(); ctx.scale(1,.2);
+        const pool=ctx.createRadialGradient(0,0,0,0,0,53);
+        pool.addColorStop(0,'rgba(226,241,255,.13)'); pool.addColorStop(1,'rgba(226,241,255,0)');
+        ctx.fillStyle=pool; ctx.fillRect(-53,-53,106,106); ctx.restore();
+      }
+      ctx.restore();
+    }
     frame(ctx, scene, w, h, state, options) {
       this.w = w; this.h = h;
       const en = options.language === 'en';
@@ -367,6 +578,7 @@
       const rect = scene.layout(w,h);
       const hutSchedule = M.hutSchedule(options.hour, options.sunriseHour, options.sunsetHour);
       ctx.save(); ctx.translate(rect.x, rect.y); ctx.scale(rect.scale, rect.scale);
+      this.drawChristmasTree(ctx, state, options);
       this.drawWindowLights(ctx, scene, state, options);
       this.drawHutDetails(ctx, state, options.animationTime, hutSchedule, options.reducedMotion, options.season);
       window.photoVisitors.ground(this,ctx,rect,state,options,hutSchedule);
