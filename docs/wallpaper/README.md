@@ -19,7 +19,7 @@ wallpaper/build.sh
 It creates, in `wallpaper/build/`:
 
 * `Odle Dolomites Italy Summer.heic` (5 July 2026, 20 pictures)
-* `Odle Dolomites Italy Winter.heic` (8 January 2026, 19 pictures)
+* `Odle Dolomites Italy Winter.heic` (9 January 2026, 19 pictures)
 
 Both days have a waning Moon, about 70% lit, in the sky at night and at dawn: a full Moon would look wrong too often, since the picture shows that day's Moon whatever the real one is.
 

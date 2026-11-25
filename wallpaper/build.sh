@@ -13,7 +13,7 @@ name="Odle Dolomites Italy"
 build="$here/build"
 # One day per wallpaper: the light, the snow and the Moon of that day. Both
 # have a waning Moon, not full, in view at night and at dawn.
-typeset -A days=(Summer 2026-07-05 Winter 2026-01-08)
+typeset -A days=(Summer 2026-07-05 Winter 2026-01-09)
 keep_frames=false release=false
 for argument in "$@"; do
   case $argument in

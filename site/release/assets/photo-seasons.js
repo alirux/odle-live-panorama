@@ -16,7 +16,8 @@
       : date >= start && date < end ? 1 : 0;
     // A photo crossfade reads as faded grass below ~40%: visible snow leads the calendar.
     const snow = 1 - (1 - amount) * (1 - amount);
-    return { amount, snow, arriving, melting, cows: 1 - smooth(snow / .3), clothing: smooth(snow / .5) };
+    const christmasDay = month === 12 ? Math.min(day, 7) : month === 1 && day <= 8 ? 7 : 0;
+    return { christmasDay, christmasRemoval: month === 1 && day === 8, christmasFirstNight: month === 12 && day === 7, amount, snow, arriving, melting, cows: 1 - smooth(snow / .3), clothing: smooth(snow / .5) };
   }
   function snowfall(season, milliseconds) {
     if (!season || season.amount <= 0 || season.accelerated) return 0;
