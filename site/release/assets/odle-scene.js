@@ -1207,8 +1207,10 @@ function drawPlanets(time) {
 
     if (photoScene.active) {
       if (!photoScene.isSky(x,y,W,H)) continue;
+      const clear = 1 - photoScene.cloudDensity(x,y,W,H);
+      if (clear <= .02) continue;
       ctx.save();
-      ctx.globalAlpha = planet.visibility;
+      ctx.globalAlpha = planet.visibility * clear;
       ctx.fillStyle = planet.colors[0];
       ctx.shadowColor = planet.colors[0];
       ctx.shadowBlur = 3;
@@ -1333,6 +1335,18 @@ function drawStars(time) {
     const y =
       Y(star.y);
 
+    // Over the photograph, stars fade behind its clouds.
+    const horizon =
+      star.horizonVisibility *
+      (photoScene.active ? 1 - photoScene.cloudDensity(x,y,W,H) : 1);
+
+    if (
+      horizon <= .001
+    ) {
+
+      continue;
+    }
+
     const radius =
       clamp(
         2.28 -
@@ -1358,7 +1372,7 @@ function drawStars(time) {
     ctx.globalAlpha =
       brightness *
       visibility *
-      star.horizonVisibility *
+      horizon *
       luminosity;
 
     ctx.fillStyle =
@@ -1402,7 +1416,7 @@ function drawStars(time) {
 
       ctx.globalAlpha =
         visibility *
-        star.horizonVisibility *
+        horizon *
         (.16 + nearbyWeight * .54);
 
       ctx.strokeStyle =
@@ -1432,7 +1446,7 @@ function drawStars(time) {
 
       ctx.globalAlpha =
         visibility *
-        star.horizonVisibility *
+        horizon *
         luminosity *
         (.68 + pulse * .25);
 
@@ -1460,7 +1474,7 @@ function drawStars(time) {
 
       ctx.globalAlpha =
         visibility *
-        star.horizonVisibility * .55;
+        horizon * .55;
 
       ctx.strokeStyle =
         "rgba(231,241,255,.92)";
@@ -1490,7 +1504,7 @@ function drawStars(time) {
       ctx.globalAlpha =
         brightness *
         visibility *
-        star.horizonVisibility * .42;
+        horizon * .42;
 
       ctx.strokeStyle =
         starColor;
@@ -1535,8 +1549,10 @@ function drawStars(time) {
 function drawPhotoIss() {
   if (issState.visibility <= .001) return;
   const x = X(issState.x), y = Y(issState.y);
+  // The station passes behind the photographic clouds like the stars do.
+  const clear = 1 - photoScene.cloudDensity(x,y,W,H);
   ctx.save();
-  ctx.globalAlpha = issState.visibility;
+  ctx.globalAlpha = issState.visibility * clear;
   ctx.translate(x,y);
   ctx.rotate(issState.angle);
   ctx.strokeStyle = "rgba(186,214,240,.95)";
@@ -1562,7 +1578,7 @@ function drawPhotoIss() {
     ctx.arc(x,y,12,0,Math.PI * 2);
     ctx.stroke();
   } else {
-    ctx.globalAlpha = issState.visibility * .82;
+    ctx.globalAlpha = issState.visibility * clear * .82;
     ctx.fillStyle = "#e9f3ff";
     ctx.font = "600 7px Inter, ui-sans-serif, system-ui, sans-serif";
     ctx.fillText("ISS",x + 6,y - 3);
