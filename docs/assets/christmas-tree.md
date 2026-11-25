@@ -68,9 +68,13 @@ does not change.
   and snow reflection, excluding neighbouring cores. Four extra swags sit
   between the five original ones, widening with the tree; their bulbs use only
   the core and halo, since the reflection belongs to the original spot. Every
-  bulb twinkles with its own phase and a period between 7 and 16 seconds,
-  between 30% and 96% opacity, so the strings never go dark. Reduced motion
-  holds a steady 70%.
+  bulb twinkles with its own phase and a period between 1.6 and 4.6 seconds,
+  between 12% and 90% opacity, so the strings never go dark; every 11 seconds
+  a wave of light runs down the tree and lifts the bulbs it crosses. Reduced
+  motion holds a steady 70%.
+- **Star.** Once lit, the star breathes on two rhythms (2.7 and 7.3 seconds):
+  its halo grows and brightens, and when both rhythms peak it flashes four
+  thin rays. Reduced motion holds it halfway.
 - **Glow.** While lit, the tree silhouette is added in warm light at low
   opacity, brighter towards the trunk, and a faint pool of light lies on the
   snow.

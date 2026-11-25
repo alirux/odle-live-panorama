@@ -103,6 +103,10 @@ test('each bulb twinkles on its own and never goes dark', () => {
   const b = render(12,8,22,{animationTime:4000});
   assert.notDeepEqual(a.photoLevels,b.photoLevels);
   assert.ok(new Set(a.photoLevels).size > 1);
-  assert.ok(a.photoLevels.every(v => v >= .3 && v <= .96));
+  assert.ok(a.photoLevels.every(v => v >= .12 && v <= 1));
+  // Within two seconds a good part of the bulbs changes clearly.
+  const c = render(12,8,22,{animationTime:1000});
+  const changed = a.photoLevels.filter((v,i) => Math.abs(v - c.photoLevels[i]) > .3).length;
+  assert.ok(changed > 65 / 4,`${changed} bulbs changed`);
   assert.deepEqual(render(12,8,22,{reducedMotion:true}).photoLevels,Array(65).fill(.7));
 });

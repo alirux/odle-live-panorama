@@ -533,13 +533,18 @@
       if (lit && lights) {
         const bulbs = this.christmasBulbs(lights);
         ctx.save(); ctx.globalCompositeOperation = 'screen';
+        const seconds = clock / 1000;
+        // Every 11 s a wave of light runs down the tree, from the star to the snow.
+        const sweep = (seconds % 11) / 11 * 1.6 - .3;
         bulbs.forEach((bulb,index) => {
           const seed = ((index + 1) * .61803398875) % 1;
-          const period = 7 + ((index * .41421356237) % 1) * 9;
-          const phase = clock / 1000 * Math.PI * 2 / period + seed * Math.PI * 2;
+          const period = 1.6 + ((index * .41421356237) % 1) * 3;
+          const phase = seconds * Math.PI * 2 / period + seed * Math.PI * 2;
           const wave = .5 - .5 * Math.cos(phase);
+          const crest = Math.max(0, 1 - Math.abs(bulb.y + bulb.height / 2 - sweep) / .12);
           // A floor keeps every bulb glowing: the strings twinkle, they never go dark.
-          ctx.globalAlpha = options.reducedMotion ? .7 : .3 + .66 * M.smooth(.08,.92,wave);
+          ctx.globalAlpha = options.reducedMotion ? .7
+            : Math.min(1, .12 + .78 * M.smooth(.25,.75,wave) + .5 * crest);
           ctx.drawImage(bulb.image, 0, 0, bulb.image.width, bulb.image.height,
             -56 + bulb.x * 112, -160 + bulb.y * 164, bulb.width * 112, bulb.height * 164);
         });
@@ -554,12 +559,29 @@
         }
         ctx.closePath(); ctx.fill();
         if (lit) {
-          const halo = ctx.createRadialGradient(0,-155,0,0,-155,4);
-          halo.addColorStop(0, 'rgba(255,243,222,.29)');
+          // The star breathes on two rhythms, and when both peak it flashes
+          // four thin rays.
+          const seconds = clock / 1000;
+          const pulse = options.reducedMotion ? .5
+            : (.5 - .5 * Math.cos(seconds * Math.PI * 2 / 2.7)) * .65
+              + (.5 - .5 * Math.cos(seconds * Math.PI * 2 / 7.3)) * .35;
+          const reach = 4 + pulse * 4;
+          const halo = ctx.createRadialGradient(0,-155,0,0,-155,reach);
+          halo.addColorStop(0, `rgba(255,243,222,${(.22 + pulse * .38).toFixed(3)})`);
           halo.addColorStop(1, 'rgba(255,243,222,0)');
-          ctx.fillStyle = halo; ctx.fillRect(-4,-159,8,8);
-          ctx.fillStyle = 'rgba(255,243,222,.9)';
-          ctx.beginPath(); ctx.arc(0,-155,.8,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle = halo; ctx.fillRect(-reach,-155-reach,reach*2,reach*2);
+          const flash = M.smooth(.55, 1, pulse);
+          if (flash > 0) {
+            ctx.save(); ctx.globalCompositeOperation = 'lighter';
+            ctx.strokeStyle = `rgba(255,246,228,${(flash * .7).toFixed(3)})`; ctx.lineWidth = .35;
+            const ray = 5 + flash * 5;
+            ctx.beginPath();
+            ctx.moveTo(0,-155-ray); ctx.lineTo(0,-155+ray);
+            ctx.moveTo(-ray*.8,-155); ctx.lineTo(ray*.8,-155);
+            ctx.stroke(); ctx.restore();
+          }
+          ctx.fillStyle = `rgba(255,243,222,${(.75 + pulse * .25).toFixed(3)})`;
+          ctx.beginPath(); ctx.arc(0,-155,.6 + pulse * .5,0,Math.PI*2); ctx.fill();
         }
       }
       if (lit) {
