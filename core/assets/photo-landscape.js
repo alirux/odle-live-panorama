@@ -9,8 +9,11 @@
     return t * t * (3 - 2 * t);
   };
 
-  // Skyline traced in plate pixels. Used only to occlude celestial bodies;
-  // the photograph itself is never cut or stretched into a polygonal terrain.
+  // Coarse skyline traced by hand in plate pixels. It is only the guide that
+  // core/scripts/generate-photo-skyline.cjs refines into PhotoSkyline, the dense
+  // edge that actually occludes the sky: between its points this polyline cuts
+  // through the notches between peaks, so bodies drawn against it showed in
+  // front of the rock. The photograph itself is never cut or reshaped.
   const ridge = [
     [0,425],[17,430],[38,419],[68,414],[92,416],[115,408],[144,401],
     [166,405],[180,404],[195,411],[221,403],[248,418],[264,426],
@@ -34,8 +37,10 @@
     [1195,264],[1203,286],[1210,274],[1217,253],[1235,241],
     [1244,240],[1253,247],[1264,270],[1273,295],[1285,268],
     [1295,264],[1306,272],[1317,287],[1325,283],[1339,300],
-    [1359,309],[1370,350],[1383,363],[1398,351],[1409,377],
-    [1421,389],[1434,414],[1456,410],[1478,416],[1501,426],
+    [1359,309],[1370,350],[1383,363],[1398,351],[1407,346],
+    [1411,353],[1415,362],[1419,361],[1422,368],[1427,372],
+    [1431,380],[1434,381],[1438,383],[1440,390],[1441,401],
+    [1456,410],[1478,416],[1501,426],
     [1520,422],[1540,408],[1567,401],[1582,404],[1607,415],
     [1631,403],[1647,400],[1672,407]
   ];
@@ -56,6 +61,21 @@
       this.clearingDay = new Image();
       this.clearingSunset = new Image();
       this.clearingLayers = new Map();
+      // Cloud masks of the three plates (white = thick cloud), built by
+      // core/scripts/generate-cloud-masks.cjs. The photographic clouds are fixed,
+      // so bodies behind them are dimmed and diffused rather than hidden.
+      this.cloudMasks = {};
+      this.cloudMix = { warmth: 0, winter: 0 };
+      for (const [name, src] of [
+        ['day', 'assets/photo/clouds-day.png'],
+        ['sunset', 'assets/photo/clouds-sunset.png'],
+        ['winter', 'assets/photo/clouds-winter.png']
+      ]) {
+        const image = new Image();
+        image.onload = () => { this.cloudMasks[name] = this.readCloudMask(image); this.cacheKey = ''; };
+        image.onerror = () => { console.warn('Unable to load cloud mask', src); };
+        image.src = src;
+      }
       const load = (image, src) => new Promise((resolve, reject) => {
         image.onload = resolve;
         image.onerror = reject;
@@ -76,6 +96,119 @@
     }
 
     get active() { return this.ready; }
+
+    readCloudMask(image) {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width; canvas.height = image.height;
+        const c = canvas.getContext('2d', { willReadFrequently: true });
+        c.drawImage(image, 0, 0);
+        const rgba = c.getImageData(0, 0, image.width, image.height).data;
+        const data = new Uint8Array(image.width * image.height);
+        for (let i = 0; i < data.length; i++) data[i] = rgba[i * 4];
+        return { w: image.width, h: image.height, data };
+      } catch (error) {
+        console.warn('Unable to read cloud mask', error);
+        return null;
+      }
+    }
+
+    // Cloud density in front of a plate point, 0 (clear) to 1 (thick), blended
+    // across the plates exactly as drawBase blends the photographs.
+    plateCloud(px, py) {
+      const sample = mask => {
+        if (!mask) return 0;
+        const u = clamp(px / WIDTH * mask.w - .5, 0, mask.w - 1);
+        const v = clamp(py / HEIGHT * mask.h - .5, 0, mask.h - 1);
+        const x0 = Math.floor(u), y0 = Math.floor(v);
+        const x1 = Math.min(mask.w - 1, x0 + 1), y1 = Math.min(mask.h - 1, y0 + 1);
+        const fx = u - x0, fy = v - y0, d = mask.data, w = mask.w;
+        const top = d[y0 * w + x0] * (1 - fx) + d[y0 * w + x1] * fx;
+        const bottom = d[y1 * w + x0] * (1 - fx) + d[y1 * w + x1] * fx;
+        return (top * (1 - fy) + bottom * fy) / 255;
+      };
+      const { warmth, winter } = this.cloudMix;
+      const masks = this.cloudMasks;
+      const summer = sample(masks.day) * (1 - warmth) + sample(masks.sunset) * warmth;
+      return winter > 0 ? summer * (1 - winter) + sample(masks.winter) * winter : summer;
+    }
+
+    // Screen point version, for stars, planets and the station.
+    cloudDensity(x, y, w, h) {
+      const rect = this.layout(w, h);
+      return this.plateCloud((x - rect.x) / rect.scale, (y - rect.y) / rect.scale);
+    }
+
+    // Average over a disk, so the sun and the moon fade smoothly into a cloud
+    // instead of switching when their centre crosses its edge.
+    diskCloud(x, y, radius, w, h) {
+      let sum = this.cloudDensity(x, y, w, h);
+      for (let i = 0; i < 6; i++) {
+        const angle = i * Math.PI / 3;
+        sum += this.cloudDensity(x + Math.cos(angle) * radius * .8, y + Math.sin(angle) * radius * .8, w, h);
+      }
+      return sum / 7;
+    }
+
+    // The cloud masks blended for the current light, at mask resolution: the
+    // alpha is the cloud density, the colour the night sky. drawBase lays it
+    // over the photographic clouds at night; the disks are cut out by it.
+    // Returns null where no canvas is available (tests) or no mask loaded.
+    cloudLayer() {
+      const ref = this.cloudMasks.day || this.cloudMasks.sunset || this.cloudMasks.winter;
+      if (!ref) return null;
+      const { warmth, winter } = this.cloudMix;
+      const key = [Object.keys(this.cloudMasks).length, Math.round(warmth * 50), Math.round(winter * 50)].join(':');
+      if (this.cloudLayerKey === key) return this.cloudLayerCanvas;
+      let canvas = null;
+      try {
+        canvas = document.createElement('canvas');
+        canvas.width = ref.w; canvas.height = ref.h;
+        const c = canvas.getContext('2d');
+        const image = c.createImageData(ref.w, ref.h);
+        for (let y = 0; y < ref.h; y++) for (let x = 0; x < ref.w; x++) {
+          const i = (y * ref.w + x) * 4;
+          image.data[i] = 10; image.data[i + 1] = 20; image.data[i + 2] = 38;
+          image.data[i + 3] = Math.round(255 * this.plateCloud((x + .5) / ref.w * WIDTH, (y + .5) / ref.h * HEIGHT));
+        }
+        c.putImageData(image, 0, 0);
+      } catch (_) {
+        canvas = null;
+      }
+      this.cloudLayerKey = key;
+      this.cloudLayerCanvas = canvas;
+      return canvas;
+    }
+
+    // Draws a disk through the clouds: the part over open sky stays sharp and
+    // the part behind a cloud fades, following the cloud's own outline.
+    // `draw` paints in screen coordinates; `extent` bounds what it paints.
+    // Returns false when the layer is unavailable, so the caller draws directly.
+    drawBehindClouds(ctx, x, y, extent, w, h, draw) {
+      const clouds = this.cloudLayer();
+      if (!clouds) return false;
+      const transform = typeof ctx.getTransform === 'function' ? ctx.getTransform() : null;
+      const pixel = Math.max(1, transform ? Math.hypot(transform.a, transform.b) : 1);
+      const size = Math.ceil(extent * 2);
+      if (!this.diskLayer) this.diskLayer = document.createElement('canvas');
+      const layer = this.diskLayer;
+      layer.width = Math.ceil(size * pixel); layer.height = Math.ceil(size * pixel);
+      const c = layer.getContext('2d');
+      c.setTransform(pixel, 0, 0, pixel, -(x - extent) * pixel, -(y - extent) * pixel);
+      draw(c);
+      c.globalCompositeOperation = 'destination-out';
+      c.globalAlpha = .9;
+      c.shadowBlur = 0;
+      const rect = this.layout(w, h);
+      c.drawImage(clouds, rect.x, rect.y, rect.w, rect.h);
+      ctx.save();
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.shadowBlur = 0;
+      ctx.drawImage(layer, x - extent, y - extent, size, size);
+      ctx.restore();
+      return true;
+    }
 
     clearingLayer(image) {
       if (this.clearingLayers.has(image)) return this.clearingLayers.get(image);
@@ -149,20 +282,55 @@
       return ridge[ridge.length - 1][1];
     }
 
+    // Dense photographic sky edge for the current season, one value per plate
+    // column. The traced profile sometimes drops into a hairline crack in the
+    // rock, so the mountain is widened by SKY_EDGE_GROW columns on each side:
+    // a body may hide a little early, but never shows in front of a peak.
+    skyEdge() {
+      const profile = typeof window !== 'undefined' && window.PhotoSkyline;
+      if (!profile) return null;
+      const amount = Math.round(clamp(this.winterReady ? this.snow || 0 : 0) * 100) / 100;
+      if (this.skyEdgeCache && this.skyEdgeAmount === amount) return this.skyEdgeCache;
+      const SKY_EDGE_GROW = 2;
+      const blended = profile.summer.map((y, x) => y * (1 - amount) + profile.winter[x] * amount);
+      this.skyEdgeCache = blended.map((_, x) => {
+        let top = Infinity;
+        for (let i = Math.max(0, x - SKY_EDGE_GROW); i <= Math.min(WIDTH - 1, x + SKY_EDGE_GROW); i++) {
+          top = Math.min(top, blended[i]);
+        }
+        return top;
+      });
+      this.skyEdgeAmount = amount;
+      return this.skyEdgeCache;
+    }
+
     isSky(x, y, w, h) {
       const rect = this.layout(w, h);
-      return x >= 0 && x <= w && y >= 0 && y <= h &&
-        (y - rect.y) / rect.scale < this.skylineY((x - rect.x) / rect.scale);
+      if (!(x >= 0 && x <= w && y >= 0 && y <= h)) return false;
+      const px = (x - rect.x) / rect.scale, py = (y - rect.y) / rect.scale;
+      const edge = this.skyEdge();
+      if (!edge) return py < this.skylineY(px);
+      return py < edge[Math.max(0, Math.min(WIDTH - 1, Math.floor(px)))];
     }
 
     clipSky(ctx, w, h) {
       const rect = this.layout(w, h);
+      const edge = this.skyEdge();
       ctx.beginPath();
       ctx.moveTo(rect.x, rect.y);
       ctx.lineTo(rect.x + rect.w, rect.y);
-      for (let i = ridge.length - 1; i >= 0; i--) {
-        ctx.lineTo(rect.x + ridge[i][0] * rect.scale,
-          rect.y + (ridge[i][1] - 1) * rect.scale);
+      if (edge) {
+        // Step along each column so a peak is never shaved by a diagonal.
+        for (let x = WIDTH - 1; x >= 0; x--) {
+          const y = rect.y + edge[x] * rect.scale;
+          ctx.lineTo(rect.x + (x + 1) * rect.scale, y);
+          ctx.lineTo(rect.x + x * rect.scale, y);
+        }
+      } else {
+        for (let i = ridge.length - 1; i >= 0; i--) {
+          ctx.lineTo(rect.x + ridge[i][0] * rect.scale,
+            rect.y + (ridge[i][1] - 1) * rect.scale);
+        }
       }
       ctx.closePath();
       ctx.clip();
@@ -170,10 +338,14 @@
 
     drawBase(ctx, w, h, dpr, state, season) {
       const winter = this.winterReady ? (season?.snow || 0) : 0;
+      // The sky edge follows the same summer to winter blend as the plates.
+      this.snow = season?.snow || 0;
       const altitude = state.sunAltitude;
       const warmth = (1 - smooth(7, 28, altitude)) * smooth(-12, -2, altitude);
       const night = 1 - smooth(-15, -2, altitude);
       const dusk = 1 - smooth(-10, 5, altitude);
+      // The cloud masks follow the same blend as the plates drawn below.
+      this.cloudMix = { warmth, winter };
       // Cache the expensive photographic layers; animation redraws one bitmap.
       const density = Math.min(dpr, 2, 2560 / w);
       const key = [w, h, density, Math.round(warmth * 100),
@@ -214,6 +386,14 @@
         sky.addColorStop(1, 'rgba(14,29,51,0)');
         c.fillStyle = sky;
         c.fillRect(0, 0, w, h);
+        // At night the daylight clouds of the photographs would glow against
+        // the dark sky and sit in front of the stars: fold them into the sky.
+        const veil = night > .01 ? this.cloudLayer() : null;
+        if (veil) {
+          c.globalAlpha = night * .35;
+          c.drawImage(veil, rect.x, rect.y, rect.w, rect.h);
+          c.globalAlpha = 1;
+        }
       }
       ctx.drawImage(this.cache, 0, 0, w, h);
     }
@@ -230,24 +410,47 @@
       if (x < -radius || x > w + radius || y < -radius || y > h + radius) return;
       const visible = this.isSky(x, y - radius, w, h);
       if (!visible) return;
+      // Behind a cloud the disk fades along the cloud's outline while the glow
+      // spreads and a warm spot tints the cloud, so the cloud reads as lit from
+      // behind and the sun's position stays readable.
+      const cloud = this.diskCloud(x, y, radius, w, h);
       ctx.save();
       this.clipSky(ctx, w, h);
-      const glowRadius = radius * 9;
+      const glowRadius = radius * 9 * (1 + cloud * .6);
       const glow = ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
       glow.addColorStop(0, 'rgba(255,246,204,.7)');
       glow.addColorStop(.10, 'rgba(255,224,157,.30)');
       glow.addColorStop(.35, 'rgba(255,191,116,.12)');
       glow.addColorStop(1, 'rgba(255,177,103,0)');
       ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 1 - cloud * .2;
       ctx.fillStyle = glow;
       ctx.fillRect(x - glowRadius, y - glowRadius, glowRadius * 2, glowRadius * 2);
       ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = state.sunAltitude < 5 ? '#fff0c6' : '#fffced';
-      ctx.shadowColor = '#fff2c5';
-      ctx.shadowBlur = radius * 1.5;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fill();
+      if (cloud > .02) {
+        // Screen light cannot brighten a white cloud: a warm tint can.
+        const spotRadius = radius * 3;
+        const spot = ctx.createRadialGradient(x, y, 0, x, y, spotRadius);
+        spot.addColorStop(0, 'rgba(255,232,170,.55)');
+        spot.addColorStop(.45, 'rgba(255,222,160,.22)');
+        spot.addColorStop(1, 'rgba(255,214,150,0)');
+        ctx.globalAlpha = cloud;
+        ctx.fillStyle = spot;
+        ctx.fillRect(x - spotRadius, y - spotRadius, spotRadius * 2, spotRadius * 2);
+        ctx.globalAlpha = 1;
+      }
+      const disk = c => {
+        c.fillStyle = state.sunAltitude < 5 ? '#fff0c6' : '#fffced';
+        c.shadowColor = '#fff2c5';
+        c.shadowBlur = radius * 1.5;
+        c.beginPath();
+        c.arc(x, y, radius, 0, Math.PI * 2);
+        c.fill();
+      };
+      if (!this.drawBehindClouds(ctx, x, y, radius * 3, w, h, disk)) {
+        ctx.globalAlpha = 1 - cloud * .9;
+        disk(ctx);
+      }
       ctx.restore();
     }
 
@@ -256,14 +459,38 @@
       const x = state.moonX * w, y = state.moonY * h;
       if (!this.isSky(x, y, w, h)) return;
       const radius = this.moonRadius(w, h);
+      const cloud = this.diskCloud(x, y, radius, w, h);
       ctx.save();
       this.clipSky(ctx, w, h);
-      ctx.globalAlpha = state.moonVisibility;
-      ctx.fillStyle = '#e0e7ec';
-      ctx.shadowColor = '#b9cfe7';
-      ctx.shadowBlur = radius * 2;
-      phasePath(x, y, radius, state.moonDisplayPhase);
-      ctx.fill();
+      if (cloud > .02) {
+        // The cloud catches the moonlight: a soft halo marks where it is.
+        const haloRadius = radius * 5;
+        const halo = ctx.createRadialGradient(x, y, 0, x, y, haloRadius);
+        halo.addColorStop(0, 'rgba(214,228,240,.35)');
+        halo.addColorStop(1, 'rgba(214,228,240,0)');
+        ctx.globalAlpha = state.moonVisibility * cloud * (state.moonIllumination ?? 1);
+        ctx.fillStyle = halo;
+        ctx.fillRect(x - haloRadius, y - haloRadius, haloRadius * 2, haloRadius * 2);
+      }
+      const points = window.OdleAstronomy?.moonPhasePoints;
+      const disk = (c, fade = 0) => {
+        c.globalAlpha = state.moonVisibility * (1 - fade);
+        c.fillStyle = '#e0e7ec';
+        c.shadowColor = '#b9cfe7';
+        c.shadowBlur = radius * 2;
+        if (c === ctx || !points) phasePath(x, y, radius, state.moonDisplayPhase);
+        else {
+          // phasePath draws on the scene's own context, so the layer gets its own path.
+          c.beginPath();
+          points(x, y, radius, state.moonDisplayPhase, 64)
+            .forEach(([px, py], i) => i ? c.lineTo(px, py) : c.moveTo(px, py));
+          c.closePath();
+        }
+        c.fill();
+      };
+      if (!points || !this.drawBehindClouds(ctx, x, y, radius * 4, w, h, c => disk(c))) {
+        disk(ctx, cloud * .85);
+      }
       ctx.restore();
     }
 

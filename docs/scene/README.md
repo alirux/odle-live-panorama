@@ -19,7 +19,21 @@ existing welcome panel. There is no separate overlay on the panorama.
 - `odle-day.webp`: neutral daytime plate.
 - `odle-sunset.webp`: warm sunset plate without the fixed sun.
 - Solar altitude blends the plates; a cool grade produces twilight and night.
-- A manually traced silhouette clips celestial bodies behind the mountain ridge.
+- Celestial bodies hide behind the photographic sky edge of each plate
+  (`photo-skyline.js`, one row per plate column, built by
+  `core/scripts/generate-photo-skyline.cjs` from the hand traced ridge in
+  `photo-landscape.js`). Each mountain column is widened by two columns on
+  both sides so hairline cracks never show a body through the rock.
+- Clouds stand in front of the Sun, the Moon, the stars, the planets and the
+  ISS. Each plate has a greyscale cloud mask at a quarter of its size
+  (`core/assets/photo/clouds-{day,sunset,winter}.png`, white is thick cloud),
+  blended like the plates. A body behind a cloud is dimmed pixel by pixel, so
+  only the part behind the cloud fades; the Sun keeps a warm glow through it
+  and the Moon a pale halo. At night a dark blue veil over the clouds keeps
+  them from glowing. The masks are built by
+  `node core/scripts/generate-cloud-masks.cjs` (needs only `dwebp`); hand
+  corrections go in `core/scripts/cloud-mask-corrections.cjs`, so they
+  survive a rebuild. Rebuild the masks after replacing a plate or the skyline.
 - Images use aspect-preserving cover cropping, including on portrait screens.
 - Celestial projection: 180° azimuth panorama centered on south, east on the
   left, west on the right; altitude zero at 55% image height, 90° spanning one
@@ -29,7 +43,7 @@ existing welcome panel. There is no separate overlay on the panorama.
 - This is an artistic panorama, not a registered geographic photograph. Solar
   altitude/azimuth are calculated, but mountain angular heights and photographic
   shading are not measured. Trees do not bend and clouds are baked into the
-  plates; the additional mist sways only while time runs at real speed,
+  plates (they do not move); the additional mist sways only while time runs at real speed,
   respecting reduced motion.
 - The photographic base is cached by viewport and lighting bucket. Images total
   approximately 944 KB. No remote service is needed at runtime.

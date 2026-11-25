@@ -1,4 +1,3 @@
-body.photo-active .intro.is-collapsed { top: 92px; }
 #photo-life-tooltip { max-width: min(290px, calc(100vw - 16px)); pointer-events: none; }
 .photo-life-badge { display: inline-block; margin: 0 6px; vertical-align: -2px; line-height: 0; }
 .photo-life-badge svg { width: 16px; height: 15px; }

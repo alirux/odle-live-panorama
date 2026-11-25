@@ -112,6 +112,97 @@ test('cloud mask uses dense photographic boundaries instead of the coarse astron
   assert.ok(Math.abs(profile.winter[580]-r.skylineY(580))>3);
 });
 
+test('sun and moon hide behind the photographic edge, not the coarse trace', () => {
+  const profile = require('../assets/photo-skyline.js');
+  const scope = vm.createContext({window:{PhotoSkyline:profile},document:{createElement:()=>({})}});
+  vm.runInContext(fs.readFileSync(path.join(root,'assets/photo-landscape.js'),'utf8')
+    .replace('new PhotoLandscape()', 'Object.create(PhotoLandscape.prototype)'),scope);
+  const r = scope.window.photoScene;
+  const rect = r.layout(1672,941);
+  const at = (x,y) => r.isSky(rect.x + x * rect.scale, rect.y + y * rect.scale, 1672, 941);
+  // In the notch at plate column 460 the hand trace runs at y 332 while the
+  // rock rises to y 308: a body at y 320 sits on the rock and must stay hidden.
+  assert.ok(r.skylineY(460) > 330 && profile.summer[460] < 310);
+  assert.equal(at(460,320),false);
+  assert.equal(at(460,300),true);
+  // Each mountain column is widened by two on both sides, closing hairline cracks.
+  const edge = r.skyEdge();
+  for (let x = 2; x < 1670; x++) {
+    assert.ok(edge[x] <= Math.min(...profile.summer.slice(x-2,x+3)) + 1e-9);
+  }
+  // Winter blends towards its own edge, as the plates do.
+  r.winterReady = true; r.snow = 1;
+  assert.equal(r.skyEdge()[690], Math.min(...profile.winter.slice(688,693)));
+});
+
+// Reads the 8 bit greyscale PNGs written by generate-cloud-masks.cjs (filter 0 rows).
+function readGreyPng(file) {
+  const zlib = require('node:zlib');
+  const bytes = fs.readFileSync(file);
+  let offset = 8, width = 0, height = 0; const idat = [];
+  while (offset < bytes.length) {
+    const length = bytes.readUInt32BE(offset), type = bytes.toString('latin1',offset + 4,offset + 8);
+    const data = bytes.subarray(offset + 8,offset + 8 + length);
+    if (type === 'IHDR') { width = data.readUInt32BE(0); height = data.readUInt32BE(4); assert.equal(data[8],8); assert.equal(data[9],0); }
+    if (type === 'IDAT') idat.push(data);
+    offset += 12 + length;
+  }
+  const rows = zlib.inflateSync(Buffer.concat(idat));
+  const pixels = new Uint8Array(width * height);
+  for (let y = 0; y < height; y++) {
+    assert.equal(rows[y * (width + 1)],0);
+    pixels.set(rows.subarray(y * (width + 1) + 1,(y + 1) * (width + 1)),y * width);
+  }
+  return {w:width,h:height,data:pixels};
+}
+
+test('cloud masks cover the sky of each plate and stay black below the mountains', () => {
+  const profile = require('../assets/photo-skyline.js');
+  for (const [plate,edge] of [['day',profile.summer],['sunset',profile.summer],['winter',profile.winter]]) {
+    const mask = readGreyPng(path.join(root,`assets/photo/clouds-${plate}.png`));
+    assert.deepEqual([mask.w,mask.h],[418,236]);
+    let below = 0, cloudy = 0, sky = 0;
+    for (let y = 0; y < mask.h; y++) for (let x = 0; x < mask.w; x++) {
+      // One mask pixel covers four plate columns: compare against their extremes.
+      const columns = edge.slice(x * 4,x * 4 + 4);
+      const v = mask.data[y * mask.w + x];
+      if (y * 4 > Math.max(...columns)) below = Math.max(below,v);
+      else if (y * 4 + 4 < Math.min(...columns) - 4) { sky++; if (v > 160) cloudy++; }
+    }
+    assert.equal(below,0,`${plate}: cloud below the mountains`);
+    // Every plate has both thick clouds and open sky.
+    assert.ok(cloudy / sky > .1 && cloudy / sky < .7,`${plate}: ${cloudy}/${sky}`);
+  }
+});
+
+test('clouds blend like the plates and dim the bodies behind them', () => {
+  const {renderer:r} = scene();
+  const flat = value => ({w:2,h:2,data:new Uint8Array(4).fill(value)});
+  r.cloudMasks = {day:flat(0),sunset:flat(255),winter:flat(102)};
+  r.cloudMix = {warmth:0,winter:0};
+  assert.equal(r.cloudDensity(500,100,1672,941),0);
+  r.cloudMix = {warmth:.5,winter:0};
+  assert.ok(Math.abs(r.cloudDensity(500,100,1672,941) - .5) < 1e-9);
+  r.cloudMix = {warmth:.5,winter:1};
+  assert.ok(Math.abs(r.cloudDensity(500,100,1672,941) - .4) < 1e-9);
+
+  const diskAlpha = cloud => {
+    r.cloudMasks = {day:flat(Math.round(cloud * 255))}; r.cloudMix = {warmth:0,winter:0};
+    let alpha = null;
+    const ctx = new Proxy({globalAlpha:1}, {
+      get:(target,key) => key === 'createRadialGradient' ? () => ({addColorStop(){}})
+        : key === 'arc' ? () => { alpha = target.globalAlpha; }
+        : key in target ? target[key] : () => {},
+      set:(target,key,value) => { target[key] = value; return true; }
+    });
+    r.drawSun(ctx,1672,941,{sunAltitude:40,sunX:640/1672,sunY:120/941});
+    return alpha;
+  };
+  assert.equal(diskAlpha(0),1);
+  // A thick cloud leaves only a faint disk; the glow keeps the position readable.
+  assert.ok(Math.abs(diskAlpha(1) - .1) < 1e-9);
+});
+
 test('sun and moon disks are enlarged for readability and scale with the panorama', () => {
   const { renderer } = scene();
   for (const [w, h] of [[1280, 720], [1920, 1080], [390, 844]]) {
